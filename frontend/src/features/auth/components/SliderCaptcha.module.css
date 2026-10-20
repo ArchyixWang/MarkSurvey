@@ -3,17 +3,17 @@
 }
 
 .instruction {
-  color: var(--ms-color-text-secondary);
+  color: var(--color-muted);
   font-size: 12px;
 }
 
 .instruction :global(.anticon) {
   margin-right: 5px;
-  color: var(--ms-color-primary);
+  color: var(--brand-primary);
 }
 
 .successText {
-  color: #176c4d;
+  color: var(--color-success);
   font-size: 12px;
   white-space: nowrap;
 }
@@ -22,10 +22,9 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  background: #e5e2d8;
-  border: 1px solid color-mix(in srgb, var(--ms-color-border) 76%, transparent);
-  border-radius: 14px;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 35%);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
 }
 
 .background {
@@ -39,7 +38,7 @@
   position: absolute;
   height: auto;
   pointer-events: none;
-  filter: drop-shadow(0 5px 9px rgb(12 35 29 / 25%));
+  filter: drop-shadow(0 4px 8px rgb(23 32 51 / 18%));
   transition: left 80ms linear;
   user-select: none;
 }
@@ -47,8 +46,8 @@
 .verifiedOverlay {
   position: absolute;
   inset: 0;
-  background: rgb(18 95 85 / 16%);
-  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 60%);
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  box-shadow: inset 0 0 0 2px var(--color-success);
   pointer-events: none;
 }
 

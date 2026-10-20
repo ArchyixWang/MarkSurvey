@@ -1,12 +1,15 @@
 import { LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
-import { App, Button, Form, Input, Tabs, Typography } from 'antd';
+import { Alert, Button, Form, Input, Tabs, Typography } from 'antd';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { loginWithEmailCode, loginWithPassword } from '../features/auth/api';
 import { useAuth } from '../features/auth/AuthProvider';
 import { AuthShell } from '../features/auth/components/AuthShell';
-import { EmailCodeField } from '../features/auth/components/EmailCodeField';
+import {
+  EmailCodeField,
+  type EmailCodeFeedback,
+} from '../features/auth/components/EmailCodeField';
 import { SliderCaptcha } from '../features/auth/components/SliderCaptcha';
 import { applyServerFieldErrors, errorMessage } from '../features/auth/formErrors';
 import type { EmailLoginPayload, PasswordLoginPayload } from '../features/auth/types';
@@ -14,14 +17,19 @@ import styles from './AuthPages.module.css';
 
 const { Text } = Typography;
 
+interface PageFeedback {
+  type: 'success' | 'error' | 'info';
+  message: string;
+}
+
 function PasswordLoginForm() {
   const [form] = Form.useForm<PasswordLoginPayload>();
-  const { message } = App.useApp();
   const { acceptSession } = useAuth();
   const navigate = useNavigate();
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaKey, setCaptchaKey] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<PageFeedback | null>(null);
 
   const resetCaptcha = () => {
     setCaptchaToken(null);
@@ -30,18 +38,17 @@ function PasswordLoginForm() {
 
   const handleSubmit = async (values: PasswordLoginPayload) => {
     if (!captchaToken) {
-      message.warning('请先完成滑块验证');
       return;
     }
     setSubmitting(true);
+    setFeedback(null);
     try {
       const session = await loginWithPassword({ ...values, captcha_token: captchaToken });
       acceptSession(session);
-      message.success(`欢迎回来，${session.user.username}`);
       navigate('/workspace', { replace: true });
     } catch (requestError) {
       if (!applyServerFieldErrors(requestError, form)) {
-        message.error(errorMessage(requestError));
+        setFeedback({ type: 'error', message: errorMessage(requestError) });
       }
       resetCaptcha();
     } finally {
@@ -58,6 +65,16 @@ function PasswordLoginForm() {
       className={styles.form}
       onFinish={(values) => void handleSubmit(values)}
     >
+      {feedback && (
+        <Alert
+          className={styles.feedback}
+          type={feedback.type}
+          message={feedback.message}
+          showIcon
+          closable
+          onClose={() => setFeedback(null)}
+        />
+      )}
       <Form.Item
         label="账号或邮箱"
         name="identifier"
@@ -85,10 +102,6 @@ function PasswordLoginForm() {
       </Form.Item>
 
       <div className={styles.captcha}>
-        <div className={styles.captchaLabel}>
-          <span>安全验证</span>
-          <span>登录前完成拼图</span>
-        </div>
         <SliderCaptcha
           key={captchaKey}
           onVerified={(token) => setCaptchaToken(token)}
@@ -115,21 +128,21 @@ function PasswordLoginForm() {
 
 function EmailLoginForm() {
   const [form] = Form.useForm<EmailLoginPayload>();
-  const { message } = App.useApp();
   const { acceptSession } = useAuth();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<PageFeedback | null>(null);
 
   const handleSubmit = async (values: EmailLoginPayload) => {
     setSubmitting(true);
+    setFeedback(null);
     try {
       const session = await loginWithEmailCode(values);
       acceptSession(session);
-      message.success(`欢迎回来，${session.user.username}`);
       navigate('/workspace', { replace: true });
     } catch (requestError) {
       if (!applyServerFieldErrors(requestError, form)) {
-        message.error(errorMessage(requestError));
+        setFeedback({ type: 'error', message: errorMessage(requestError) });
       }
     } finally {
       setSubmitting(false);
@@ -145,6 +158,16 @@ function EmailLoginForm() {
       className={styles.form}
       onFinish={(values) => void handleSubmit(values)}
     >
+      {feedback && (
+        <Alert
+          className={styles.feedback}
+          type={feedback.type}
+          message={feedback.message}
+          showIcon
+          closable
+          onClose={() => setFeedback(null)}
+        />
+      )}
       <Form.Item
         label="邮箱"
         name="email"
@@ -155,10 +178,11 @@ function EmailLoginForm() {
       >
         <Input prefix={<MailOutlined />} autoComplete="email" placeholder="name@example.com" />
       </Form.Item>
-      <EmailCodeField form={form} purpose="email_login" />
-      <div className={styles.notice}>
-        获取验证码前需要完成滑块验证；验证码登录本身不再重复滑块。
-      </div>
+      <EmailCodeField
+        form={form}
+        purpose="email_login"
+        onFeedback={(nextFeedback: EmailCodeFeedback) => setFeedback(nextFeedback)}
+      />
       <Button
         type="primary"
         htmlType="submit"
@@ -173,11 +197,22 @@ function EmailLoginForm() {
 }
 
 export function LoginPage() {
+  const location = useLocation();
+  const notice = (location.state as { notice?: string } | null)?.notice;
+  const [noticeOpen, setNoticeOpen] = useState(Boolean(notice));
+
   return (
-    <AuthShell
-      title="回到你的工作空间"
-      subtitle="使用密码或一次性邮箱验证码登录。你的租户数据只在当前工作空间内可见。"
-    >
+    <AuthShell title="回到你的工作空间">
+      {notice && noticeOpen && (
+        <Alert
+          className={styles.feedback}
+          type="success"
+          message={notice}
+          showIcon
+          closable
+          onClose={() => setNoticeOpen(false)}
+        />
+      )}
       <Tabs
         className={styles.tabs}
         defaultActiveKey="password"

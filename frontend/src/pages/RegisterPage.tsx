@@ -1,35 +1,43 @@
 import { IdcardOutlined, LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
-import { App, Button, Form, Input, Typography } from 'antd';
+import { Alert, Button, Form, Input, Typography } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { register } from '../features/auth/api';
 import { useAuth } from '../features/auth/AuthProvider';
 import { AuthShell } from '../features/auth/components/AuthShell';
-import { EmailCodeField } from '../features/auth/components/EmailCodeField';
+import {
+  EmailCodeField,
+  type EmailCodeFeedback,
+} from '../features/auth/components/EmailCodeField';
 import { applyServerFieldErrors, errorMessage } from '../features/auth/formErrors';
 import type { RegisterPayload } from '../features/auth/types';
 import styles from './AuthPages.module.css';
 
 const { Text } = Typography;
 
+interface PageFeedback {
+  type: 'success' | 'error';
+  message: string;
+}
+
 export function RegisterPage() {
   const [form] = Form.useForm<RegisterPayload>();
-  const { message } = App.useApp();
   const { acceptSession } = useAuth();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<PageFeedback | null>(null);
 
   const handleSubmit = async (values: RegisterPayload) => {
     setSubmitting(true);
+    setFeedback(null);
     try {
       const session = await register(values);
       acceptSession(session);
-      message.success('工作空间已创建');
       navigate('/workspace', { replace: true });
     } catch (requestError) {
       if (!applyServerFieldErrors(requestError, form)) {
-        message.error(errorMessage(requestError));
+        setFeedback({ type: 'error', message: errorMessage(requestError) });
       }
     } finally {
       setSubmitting(false);
@@ -37,13 +45,7 @@ export function RegisterPage() {
   };
 
   return (
-    <AuthShell
-      title="创建你的工作空间"
-      subtitle="注册后你将拥有一个独立租户和 owner 身份，可以立即开始使用 MarkSurvey。"
-    >
-      <div className={styles.notice}>
-        账号与邮箱全局唯一；用户名仅作为工作空间内的展示昵称。
-      </div>
+    <AuthShell title="创建你的工作空间">
       <Form
         form={form}
         layout="vertical"
@@ -52,6 +54,16 @@ export function RegisterPage() {
         className={styles.form}
         onFinish={(values) => void handleSubmit(values)}
       >
+        {feedback && (
+          <Alert
+            className={styles.feedback}
+            type={feedback.type}
+            message={feedback.message}
+            showIcon
+            closable
+            onClose={() => setFeedback(null)}
+          />
+        )}
         <div className={styles.twoColumns}>
           <Form.Item
             label="用户名"
@@ -125,7 +137,11 @@ export function RegisterPage() {
             />
           </Form.Item>
         </div>
-        <EmailCodeField form={form} purpose="register" />
+        <EmailCodeField
+          form={form}
+          purpose="register"
+          onFeedback={(nextFeedback: EmailCodeFeedback) => setFeedback(nextFeedback)}
+        />
         <Button
           type="primary"
           htmlType="submit"

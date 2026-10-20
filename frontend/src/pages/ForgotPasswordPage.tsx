@@ -1,35 +1,43 @@
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import { App, Button, Form, Input, Typography } from 'antd';
+import { Alert, Button, Form, Input, Typography } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { resetPassword } from '../features/auth/api';
 import { useAuth } from '../features/auth/AuthProvider';
 import { AuthShell } from '../features/auth/components/AuthShell';
-import { EmailCodeField } from '../features/auth/components/EmailCodeField';
+import {
+  EmailCodeField,
+  type EmailCodeFeedback,
+} from '../features/auth/components/EmailCodeField';
 import { applyServerFieldErrors, errorMessage } from '../features/auth/formErrors';
 import type { PasswordResetPayload } from '../features/auth/types';
 import styles from './AuthPages.module.css';
 
 const { Text } = Typography;
 
+interface PageFeedback {
+  type: 'success' | 'error';
+  message: string;
+}
+
 export function ForgotPasswordPage() {
   const [form] = Form.useForm<PasswordResetPayload>();
-  const { message } = App.useApp();
   const { clearSession } = useAuth();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<PageFeedback | null>(null);
 
   const handleSubmit = async (values: PasswordResetPayload) => {
     setSubmitting(true);
+    setFeedback(null);
     try {
       await resetPassword(values);
       clearSession();
-      message.success('密码已重置，请使用新密码登录');
-      navigate('/login', { replace: true });
+      navigate('/login', { replace: true, state: { notice: '密码已重置' } });
     } catch (requestError) {
       if (!applyServerFieldErrors(requestError, form)) {
-        message.error(errorMessage(requestError));
+        setFeedback({ type: 'error', message: errorMessage(requestError) });
       }
     } finally {
       setSubmitting(false);
@@ -37,10 +45,7 @@ export function ForgotPasswordPage() {
   };
 
   return (
-    <AuthShell
-      title="重新设置密码"
-      subtitle="验证邮箱后设置新密码。完成重置后，该账号已有的全部会话都会立即失效。"
-    >
+    <AuthShell title="重新设置密码">
       <Form
         form={form}
         layout="vertical"
@@ -49,6 +54,16 @@ export function ForgotPasswordPage() {
         className={styles.form}
         onFinish={(values) => void handleSubmit(values)}
       >
+        {feedback && (
+          <Alert
+            className={styles.feedback}
+            type={feedback.type}
+            message={feedback.message}
+            showIcon
+            closable
+            onClose={() => setFeedback(null)}
+          />
+        )}
         <Form.Item
           label="注册邮箱"
           name="email"
@@ -59,7 +74,11 @@ export function ForgotPasswordPage() {
         >
           <Input prefix={<MailOutlined />} autoComplete="email" placeholder="name@example.com" />
         </Form.Item>
-        <EmailCodeField form={form} purpose="password_reset" />
+        <EmailCodeField
+          form={form}
+          purpose="password_reset"
+          onFeedback={(nextFeedback: EmailCodeFeedback) => setFeedback(nextFeedback)}
+        />
         <Form.Item
           label="新密码"
           name="new_password"

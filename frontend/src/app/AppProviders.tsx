@@ -5,29 +5,67 @@ import type { CSSProperties, ReactNode } from 'react';
 
 const themeConfig: ThemeConfig = {
   token: {
-    colorPrimary: '#125f55',
-    colorInfo: '#125f55',
-    colorBgLayout: '#f3f1e9',
-    colorText: '#18231f',
-    colorTextSecondary: '#5f6a65',
-    borderRadius: 10,
-    borderRadiusLG: 20,
-    fontFamily: "'Segoe UI Variable', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+    colorPrimary: '#2563EB',
+    colorPrimaryHover: '#1D4ED8',
+    colorInfo: '#2563EB',
+    colorSuccess: '#16A34A',
+    colorWarning: '#D97706',
+    colorError: '#DC2626',
+    colorLink: '#2563EB',
+    colorLinkHover: '#1D4ED8',
+    colorBgLayout: '#F5F7FB',
+    colorBgContainer: '#FFFFFF',
+    colorText: '#172033',
+    colorTextSecondary: '#667085',
+    colorBorder: 'rgba(23, 32, 51, 0.10)',
+    colorBorderSecondary: 'rgba(23, 32, 51, 0.08)',
+    controlOutline: 'rgba(37, 99, 235, 0.26)',
+    controlOutlineWidth: 3,
+    controlHeight: 40,
+    controlHeightLG: 46,
+    controlHeightSM: 34,
+    borderRadius: 8,
+    borderRadiusLG: 8,
+    borderRadiusSM: 6,
+    fontSize: 14,
+    lineHeight: 1.5,
+    fontFamily:
+      "'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   },
 };
 
-type ThemeVariables = CSSProperties & Record<`--ms-${string}`, string>;
+type ThemeVariables = CSSProperties & {
+  '--color-bg': string;
+  '--color-surface': string;
+  '--color-text': string;
+  '--color-muted': string;
+  '--color-border': string;
+  '--brand-primary': string;
+  '--brand-primary-hover': string;
+  '--brand-accent': string;
+  '--terracotta': string;
+  '--color-success': string;
+  '--color-warning': string;
+  '--color-danger': string;
+  '--focus-ring': string;
+};
 
 function ThemedApplication({ children }: { children: ReactNode }) {
   const { token } = theme.useToken();
   const variables: ThemeVariables = {
-    '--ms-color-primary': token.colorPrimary,
-    '--ms-color-primary-bg': token.colorPrimaryBg,
-    '--ms-color-text': token.colorText,
-    '--ms-color-text-secondary': token.colorTextSecondary,
-    '--ms-color-border': token.colorBorderSecondary,
-    '--ms-color-surface': token.colorBgContainer,
-    '--ms-color-layout': token.colorBgLayout,
+    '--color-bg': token.colorBgLayout,
+    '--color-surface': token.colorBgContainer,
+    '--color-text': token.colorText,
+    '--color-muted': token.colorTextSecondary,
+    '--color-border': 'rgba(23, 32, 51, 0.10)',
+    '--brand-primary': token.colorPrimary,
+    '--brand-primary-hover': token.colorPrimaryHover,
+    '--brand-accent': '#F97316',
+    '--terracotta': '#14B8A6',
+    '--color-success': token.colorSuccess,
+    '--color-warning': token.colorWarning,
+    '--color-danger': token.colorError,
+    '--focus-ring': 'rgba(37, 99, 235, 0.26)',
   };
 
   return <AntdApp style={variables}>{children}</AntdApp>;

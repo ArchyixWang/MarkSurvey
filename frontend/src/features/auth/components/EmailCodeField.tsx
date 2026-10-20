@@ -1,7 +1,7 @@
 import { MailOutlined } from '@ant-design/icons';
-import { App, Button, Form, Input, Modal } from 'antd';
+import { Button, Form, Input, Modal, Space } from 'antd';
 import type { FormInstance } from 'antd';
-import { useState } from 'react';
+import { useState, type ChangeEvent, type FocusEvent } from 'react';
 
 import { ApiError } from '../../../shared/api/client';
 import { requestEmailCode } from '../api';
@@ -9,12 +9,65 @@ import { errorMessage } from '../formErrors';
 import type { EmailPurpose } from '../types';
 import { useCountdown } from '../useCountdown';
 import { SliderCaptcha } from './SliderCaptcha';
+import styles from './EmailCodeField.module.css';
+
+export interface EmailCodeFeedback {
+  type: 'success' | 'error';
+  message: string;
+}
 
 interface EmailCodeFieldProps {
   form: FormInstance;
   purpose: EmailPurpose;
   emailField?: string;
   codeField?: string;
+  onFeedback: (feedback: EmailCodeFeedback) => void;
+}
+
+interface CodeControlProps {
+  value?: string;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (event: FocusEvent<HTMLInputElement>) => void;
+  id?: string;
+  requesting: boolean;
+  remaining: number;
+  onRequest: () => void;
+}
+
+function CodeControl({
+  value,
+  onChange,
+  onBlur,
+  id,
+  requesting,
+  remaining,
+  onRequest,
+}: CodeControlProps) {
+  const buttonText = remaining > 0 ? `${remaining} 秒后重发` : '发送验证码';
+
+  return (
+    <Space.Compact block className={styles.control}>
+      <Input
+        id={id}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        prefix={<MailOutlined />}
+        maxLength={6}
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        placeholder="6 位数字验证码"
+      />
+      <Button
+        type="default"
+        loading={requesting}
+        disabled={remaining > 0 || requesting}
+        onClick={onRequest}
+      >
+        {buttonText}
+      </Button>
+    </Space.Compact>
+  );
 }
 
 export function EmailCodeField({
@@ -22,8 +75,8 @@ export function EmailCodeField({
   purpose,
   emailField = 'email',
   codeField = 'email_code',
+  onFeedback,
 }: EmailCodeFieldProps) {
-  const { message } = App.useApp();
   const [modalOpen, setModalOpen] = useState(false);
   const [requesting, setRequesting] = useState(false);
   const { remaining, start } = useCountdown();
@@ -44,19 +97,17 @@ export function EmailCodeField({
       const response = await requestEmailCode({ email, purpose, captcha_token: captchaToken });
       start(response.retry_after);
       setModalOpen(false);
-      message.success('验证码已发送，请查收邮箱');
+      onFeedback({ type: 'success', message: '验证码已发送' });
     } catch (requestError) {
       setModalOpen(false);
       if (requestError instanceof ApiError && requestError.retryAfter) {
         start(requestError.retryAfter);
       }
-      message.error(errorMessage(requestError));
+      onFeedback({ type: 'error', message: errorMessage(requestError) });
     } finally {
       setRequesting(false);
     }
   };
-
-  const buttonText = remaining > 0 ? `${remaining} 秒后重发` : '发送验证码';
 
   return (
     <>
@@ -68,24 +119,10 @@ export function EmailCodeField({
           { pattern: /^\d{6}$/, message: '请输入 6 位数字验证码' },
         ]}
       >
-        <Input
-          prefix={<MailOutlined />}
-          maxLength={6}
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          placeholder="6 位数字验证码"
-          suffix={
-            <Button
-              type="link"
-              size="small"
-              className="auth-code-button"
-              loading={requesting}
-              disabled={remaining > 0 || requesting}
-              onClick={() => void openVerification()}
-            >
-              {buttonText}
-            </Button>
-          }
+        <CodeControl
+          requesting={requesting}
+          remaining={remaining}
+          onRequest={() => void openVerification()}
         />
       </Form.Item>
 
@@ -96,11 +133,11 @@ export function EmailCodeField({
         width={460}
         centered
         destroyOnHidden
+        className={styles.modal}
         mask={{ closable: !requesting }}
         closable={!requesting}
         onCancel={() => setModalOpen(false)}
       >
-        <p className="auth-modal-hint">完成拼图验证后，我们会向你的邮箱发送验证码。</p>
         <SliderCaptcha onVerified={(token) => void handleVerified(token)} />
       </Modal>
     </>
