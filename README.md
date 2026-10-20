@@ -2,7 +2,7 @@
 
 MarkSurvey 是一个在线问卷系统。本仓库采用规格驱动开发（Specification-Driven Development，SDD）：需求先形成文档与验收标准，再进入实现、联调和提交。
 
-> 当前状态：基础工程骨架已建立，业务模块尚未开始。
+> 当前状态：多租户身份、认证与工作台一期已实现；问卷业务将在后续板块接入。
 
 ## 技术栈
 
@@ -10,7 +10,7 @@ MarkSurvey 是一个在线问卷系统。本仓库采用规格驱动开发（Spe
 | --- | --- |
 | 前端 | Vite、React、TypeScript、Ant Design |
 | 后端 | Python、FastAPI、Pydantic |
-| 数据库 | MongoDB |
+| 数据库 | MongoDB Community（建议 9.0.x；本工作区联调实例为 8.0.4） |
 | 接口 | REST / JSON，统一使用 `/api/v1` 前缀 |
 
 ## 目录结构
@@ -27,6 +27,20 @@ MarkSurvey/
 
 ## 本地启动
 
+### 环境要求
+
+- Node.js 22.12 或更高版本。
+- Python 3.12 或更高版本。
+- MongoDB Community，默认连接 `mongodb://localhost:27017`。开发环境不启用数据库认证，生产部署必须另行配置访问控制。
+
+本机若尚无 MongoDB，可安装目标版本：
+
+```powershell
+winget install --id MongoDB.Server --version 9.0.2 --exact
+```
+
+若本机已有兼容的 MongoDB 服务，可直接复用现有实例。后端启动时会 ping 数据库并创建认证模块索引；数据库不可用时应用启动失败。
+
 ### 后端
 
 ```powershell
@@ -37,7 +51,11 @@ Copy-Item .env.example .env
 .\.venv\Scripts\python -m uvicorn app.main:app --reload
 ```
 
-后端默认运行在 `http://127.0.0.1:8000`，接口文档位于 `http://127.0.0.1:8000/docs`。当前健康检查不依赖数据库；首个持久化模块开始开发时再启用 MongoDB 连接。
+后端默认运行在 `http://127.0.0.1:8000`，接口文档位于 `http://127.0.0.1:8000/docs`。健康检查只表示 API 进程可响应；应用启动生命周期会校验 MongoDB 并创建索引。
+
+开发环境默认使用 `MARKSURVEY_EMAIL_BACKEND=console`，验证码会以 warning 级别输出到后端日志。生产环境必须配置 SMTP、至少 32 位的 `MARKSURVEY_AUTH_SECRET` 和 Secure Cookie。
+
+认证接口位于 `/api/v1/auth`，包括滑块挑战、邮箱验证码、注册、两种登录、找回密码、会话恢复和退出。
 
 ### 前端
 
@@ -50,6 +68,13 @@ npm run dev
 
 前端默认运行在 `http://localhost:5173`，开发环境将 `/api` 代理到 `http://127.0.0.1:8000`。
 
+页面路由：
+
+- `/login`：密码登录或邮箱验证码登录。
+- `/register`：注册并自动建立租户。
+- `/forgot-password`：通过邮箱验证码重置密码。
+- `/workspace`：受保护的多租户工作台。
+
 ## 验证命令
 
 ```powershell
@@ -59,6 +84,7 @@ cd backend
 .\.venv\Scripts\ruff format --check .
 
 cd ..\frontend
+npm test
 npm run check
 ```
 
@@ -78,3 +104,5 @@ npm run check
 - 架构说明：`docs/architecture/overview.md`
 - SDD 流程：`docs/process/sdd-workflow.md`
 - 技术选型决策：`docs/decisions/0001-initial-technology-stack.md`
+- 身份认证决策：`docs/decisions/0002-authentication-session-captcha.md`
+- 认证与工作台规格：`docs/specs/identity-and-auth.md`

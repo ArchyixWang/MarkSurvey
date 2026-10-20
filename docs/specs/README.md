@@ -13,4 +13,4 @@
 
 ## 当前规格
 
-- `identity-and-auth.md`：多租户身份、认证与工作台一期，状态 `Approved`。
+- `identity-and-auth.md`：多租户身份、认证与工作台一期，状态 `Implemented`。
