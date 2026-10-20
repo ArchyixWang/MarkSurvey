@@ -89,3 +89,14 @@ export function anonymousSessionFetch(
     return handler(input, init);
   });
 }
+
+export function authenticatedSessionFetch(
+  handler: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>,
+) {
+  return installFetchMock((input, init) => {
+    if (requestPath(input) === '/api/v1/auth/session') {
+      return Promise.resolve(jsonResponse(testSession));
+    }
+    return handler(input, init);
+  });
+}
