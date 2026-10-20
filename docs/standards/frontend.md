@@ -9,6 +9,7 @@
 - UI 组件与交互优先使用 Ant Design，不为已有能力重复造组件。
 - 路由使用 React Router DOM 7，页面按路由懒加载。
 - 自动化测试使用 Vitest + Testing Library。
+- 视觉、布局、组件、响应式与文案约束以 `docs/standards/frontend-design.md` 为准。
 - 应用必须由 `ConfigProvider` 包裹，并与 Ant Design 的 `App` 成对出现；全局提示使用 `App.useApp()` 获取上下文实例。
 - 主题色、圆角、字体等优先通过 Ant Design Design Token 配置；自定义样式使用 CSS Modules，并消费应用暴露的主题变量。
 
