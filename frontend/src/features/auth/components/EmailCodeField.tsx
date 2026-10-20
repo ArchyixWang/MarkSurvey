@@ -1,5 +1,5 @@
 import { MailOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Space } from 'antd';
+import { Button, Form, Input, Space } from 'antd';
 import type { FormInstance } from 'antd';
 import { useState, type ChangeEvent, type FocusEvent } from 'react';
 
@@ -8,7 +8,7 @@ import { requestEmailCode } from '../api';
 import { errorMessage } from '../formErrors';
 import type { EmailPurpose } from '../types';
 import { useCountdown } from '../useCountdown';
-import { SliderCaptcha } from './SliderCaptcha';
+import { SliderCaptchaModal } from './SliderCaptchaModal';
 import styles from './EmailCodeField.module.css';
 
 export interface EmailCodeFeedback {
@@ -126,20 +126,12 @@ export function EmailCodeField({
         />
       </Form.Item>
 
-      <Modal
+      <SliderCaptchaModal
         open={modalOpen}
-        title="安全验证"
-        footer={null}
-        width={460}
-        centered
-        destroyOnHidden
-        className={styles.modal}
-        mask={{ closable: !requesting }}
-        closable={!requesting}
+        dismissible={!requesting}
         onCancel={() => setModalOpen(false)}
-      >
-        <SliderCaptcha onVerified={(token) => void handleVerified(token)} />
-      </Modal>
+        onVerified={(token) => void handleVerified(token)}
+      />
     </>
   );
 }

@@ -34,12 +34,14 @@ export function AuthShell({ title, children }: AuthShellProps) {
           <div className={styles.mobileBrand}>
             <Brand />
           </div>
-          <header className={styles.header}>
-            <Title level={2} className={styles.title}>
-              {title}
-            </Title>
-          </header>
-          <div className={styles.formArea}>{children}</div>
+          <div className={styles.authContent}>
+            <header className={styles.header}>
+              <Title level={2} className={styles.title}>
+                {title}
+              </Title>
+            </header>
+            <div className={styles.formArea}>{children}</div>
+          </div>
         </section>
       </section>
     </main>

@@ -10,7 +10,7 @@ import {
   EmailCodeField,
   type EmailCodeFeedback,
 } from '../features/auth/components/EmailCodeField';
-import { SliderCaptcha } from '../features/auth/components/SliderCaptcha';
+import { SliderCaptchaModal } from '../features/auth/components/SliderCaptchaModal';
 import { applyServerFieldErrors, errorMessage } from '../features/auth/formErrors';
 import type { EmailLoginPayload, PasswordLoginPayload } from '../features/auth/types';
 import styles from './AuthPages.module.css';
@@ -22,107 +22,114 @@ interface PageFeedback {
   message: string;
 }
 
+type PasswordCredentials = Omit<PasswordLoginPayload, 'captcha_token'>;
+
 function PasswordLoginForm() {
-  const [form] = Form.useForm<PasswordLoginPayload>();
+  const [form] = Form.useForm<PasswordCredentials>();
   const { acceptSession } = useAuth();
   const navigate = useNavigate();
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [captchaKey, setCaptchaKey] = useState(0);
+  const [captchaOpen, setCaptchaOpen] = useState(false);
+  const [credentials, setCredentials] = useState<PasswordCredentials | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<PageFeedback | null>(null);
 
-  const resetCaptcha = () => {
-    setCaptchaToken(null);
-    setCaptchaKey((key) => key + 1);
+  const handleCredentials = (values: PasswordCredentials) => {
+    setCredentials(values);
+    setFeedback(null);
+    setCaptchaOpen(true);
   };
 
-  const handleSubmit = async (values: PasswordLoginPayload) => {
-    if (!captchaToken) {
+  const handleVerified = async (captchaToken: string) => {
+    if (!credentials) {
       return;
     }
+    setCaptchaOpen(false);
     setSubmitting(true);
     setFeedback(null);
     try {
-      const session = await loginWithPassword({ ...values, captcha_token: captchaToken });
+      const session = await loginWithPassword({ ...credentials, captcha_token: captchaToken });
       acceptSession(session);
       navigate('/workspace', { replace: true });
     } catch (requestError) {
       if (!applyServerFieldErrors(requestError, form)) {
         setFeedback({ type: 'error', message: errorMessage(requestError) });
       }
-      resetCaptcha();
     } finally {
       setSubmitting(false);
+      setCredentials(null);
     }
   };
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      requiredMark={false}
-      size="large"
-      className={styles.form}
-      onFinish={(values) => void handleSubmit(values)}
-    >
-      {feedback && (
-        <Alert
-          className={styles.feedback}
-          type={feedback.type}
-          message={feedback.message}
-          showIcon
-          closable
-          onClose={() => setFeedback(null)}
-        />
-      )}
-      <Form.Item
-        label="账号或邮箱"
-        name="identifier"
-        rules={[{ required: true, message: '请输入账号或邮箱' }]}
+    <>
+      <Form
+        form={form}
+        layout="vertical"
+        requiredMark={false}
+        size="large"
+        className={styles.form}
+        onFinish={handleCredentials}
       >
-        <Input
-          prefix={<UserOutlined />}
-          autoComplete="username"
-          placeholder="输入账号或邮箱"
-        />
-      </Form.Item>
-      <Form.Item
-        label="密码"
-        name="password"
-        rules={[
-          { required: true, message: '请输入密码' },
-          { min: 8, max: 64, message: '密码长度需为 8–64 位' },
-        ]}
-      >
-        <Input.Password
-          prefix={<LockOutlined />}
-          autoComplete="current-password"
-          placeholder="输入登录密码"
-        />
-      </Form.Item>
+        {feedback && (
+          <Alert
+            className={styles.feedback}
+            type={feedback.type}
+            message={feedback.message}
+            showIcon
+            closable
+            onClose={() => setFeedback(null)}
+          />
+        )}
+        <Form.Item
+          label="账号或邮箱"
+          name="identifier"
+          rules={[{ required: true, message: '请输入账号或邮箱' }]}
+        >
+          <Input
+            prefix={<UserOutlined />}
+            autoComplete="username"
+            placeholder="输入账号或邮箱"
+          />
+        </Form.Item>
+        <Form.Item
+          label="密码"
+          name="password"
+          rules={[
+            { required: true, message: '请输入密码' },
+            { min: 8, max: 64, message: '密码长度需为 8–64 位' },
+          ]}
+        >
+          <Input.Password
+            prefix={<LockOutlined />}
+            autoComplete="current-password"
+            placeholder="输入登录密码"
+          />
+        </Form.Item>
 
-      <div className={styles.captcha}>
-        <SliderCaptcha
-          key={captchaKey}
-          onVerified={(token) => setCaptchaToken(token)}
-        />
-      </div>
+        <div className={styles.auxiliary}>
+          <Link to="/forgot-password">忘记密码？</Link>
+        </div>
 
-      <div className={styles.auxiliary}>
-        <Link to="/forgot-password">忘记密码？</Link>
-      </div>
-
-      <Button
-        type="primary"
-        htmlType="submit"
-        block
-        loading={submitting}
-        disabled={!captchaToken}
-        className={styles.submit}
-      >
-        进入工作台
-      </Button>
-    </Form>
+        <Button
+          type="primary"
+          htmlType="submit"
+          block
+          loading={submitting}
+          className={styles.submit}
+        >
+          进入工作台
+        </Button>
+      </Form>
+      <SliderCaptchaModal
+        open={captchaOpen}
+        dismissible={!submitting}
+        onCancel={() => {
+          setCaptchaOpen(false);
+          setCredentials(null);
+        }}
+        onVerified={(token) => void handleVerified(token)}
+      />
+    </>
   );
 }
 

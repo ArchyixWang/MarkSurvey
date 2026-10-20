@@ -1,0 +1,10 @@
+.modal :global(.ant-modal-content) {
+  border-radius: 8px;
+}
+
+@media (max-width: 520px) {
+  .modal :global(.ant-modal-close) {
+    width: 44px;
+    height: 44px;
+  }
+}
