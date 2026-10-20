@@ -1,0 +1,17 @@
+from pymongo import AsyncMongoClient
+from pymongo.asynchronous.database import AsyncDatabase
+
+from app.core.config import Settings
+from app.modules.identity.indexes import ensure_identity_indexes
+
+
+async def open_database(settings: Settings) -> tuple[AsyncMongoClient, AsyncDatabase]:
+    client = AsyncMongoClient(
+        settings.mongodb_uri,
+        tz_aware=True,
+        serverSelectionTimeoutMS=5000,
+    )
+    await client.admin.command("ping")
+    database = client[settings.mongodb_database]
+    await ensure_identity_indexes(database)
+    return client, database
