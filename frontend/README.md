@@ -25,6 +25,10 @@ npm run dev
 
 页面按路由懒加载。`AuthProvider` 在启动时读取会话，统一处理 `401`，并向页面提供用户、租户、登录状态和退出能力。
 
+## 视觉规范
+
+共享设计令牌、认证页布局、工作台 AppShell、组件与响应式约束以 [`../docs/standards/frontend-design.md`](../docs/standards/frontend-design.md) 为准。工作台采用固定视口、60/56px 顶栏和 232/72px 可收起侧栏，内容区独立滚动。
+
 ## 目录
 
 ```text
