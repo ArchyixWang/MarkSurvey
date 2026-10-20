@@ -14,3 +14,4 @@
 ## 当前规格
 
 - `identity-and-auth.md`：多租户身份、认证与工作台一期，状态 `Implemented`。
+- `survey-platform.md`：问卷 Schema、版本、填写与统计一期，状态 `Approved`。
