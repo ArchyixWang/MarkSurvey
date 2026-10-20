@@ -146,7 +146,7 @@ export function SliderCaptcha({ onVerified }: SliderCaptchaProps) {
       </div>
 
       <Slider
-        aria-label="滑块位置"
+        ariaLabelForHandle="滑块位置"
         min={0}
         max={maxOffset}
         value={value}
