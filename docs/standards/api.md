@@ -1,6 +1,6 @@
 # API 规范
 
-状态：认证 v1 契约生效
+状态：认证与问卷 v1 契约生效
 适用范围：前后端 HTTP 接口
 
 ## 地址与版本
@@ -72,6 +72,63 @@
 - CSRF Cookie：可由前端脚本读取；已登录状态下的受保护变更接口要求 Cookie 与 `X-CSRF-Token` 请求头一致。
 - 当前受保护变更接口为 `POST /auth/logout`。未认证的登录、注册、找回密码接口依靠验证码、滑块令牌和限流保护。
 - 会话 Cookie 名为 `marksurvey_session`，CSRF Cookie 名为 `marksurvey_csrf`；两者均通过配置可替换。
+
+## 问卷接口
+
+问卷管理接口位于 `/api/v1/surveys`，填写接口位于 `/api/v1/public/surveys`。所有接口要求有效会话；所有状态变更要求 CSRF。管理接口按会话租户隔离，跨租户访问统一返回 `404`；任何租户的登录用户都可以通过短码访问已发布问卷。
+
+### 管理接口
+
+| 方法 | 路径 | 请求要点 | 成功响应 |
+| --- | --- | --- | --- |
+| POST | `/surveys` | `title`、`description`、`allow_anonymous` | `201`，创建空草稿与稳定短码 |
+| GET | `/surveys` | `page`、`page_size`、可选 `status`、`query` | `200`，租户内分页列表 |
+| GET | `/surveys/{id}` | 无 | `200`，草稿 Schema、revision、在线版本与版本状态 |
+| PUT | `/surveys/{id}/draft` | 完整 `schema` 与 `revision` | `200`，保存并递增草稿 revision |
+| POST | `/surveys/{id}/publish` | 当前 `revision` | `200`，创建不可变版本并切换在线版本 |
+| POST | `/surveys/{id}/close` | 无 | `200`，立即关闭并作废未提交草稿 |
+| PUT | `/surveys/{id}/deadline` | `deadline_at` 或 `null` | `200`，更新截止时间，不创建版本 |
+| GET | `/surveys/{id}/versions` | 无 | `200`，版本历史与在线标记 |
+| GET | `/surveys/{id}/versions/{version_id}` | 无 | `200`，不可变版本快照 |
+| POST | `/surveys/{id}/versions/{version_id}/copy-to-draft` | 无 | `200`，复制历史版本为当前草稿 |
+| GET | `/surveys/{id}/statistics` | 无 | `200`，按当前在线 Schema 聚合全部已提交答卷 |
+| GET | `/surveys/{id}/statistics/questions/{question_id}/text-values` | `page`、`page_size` | `200`，分页文本答案 |
+
+### 填写接口
+
+| 方法 | 路径 | 请求要点 | 成功响应 |
+| --- | --- | --- | --- |
+| GET | `/public/surveys/{short_code}` | 无 | `200`，链接状态、可填写性、在线 Schema 与当前草稿摘要 |
+| POST | `/public/surveys/{short_code}/attempts` | `start_new` | `201`，创建或恢复绑定在线版本的草稿 |
+| PATCH | `/public/surveys/{short_code}/attempts/{attempt_id}` | `revision`、`answers`、`current_question_id` | `200`，自动保存并返回新 revision |
+| POST | `/public/surveys/{short_code}/attempts/{attempt_id}/submit` | `revision`、`answers`、`current_question_id` | `200`，校验并提交最终答卷 |
+
+公开接口返回的 `status` 可能为 `draft`、`published`、`closed` 或计算得到的 `expired`。`can_fill=false`、`existing_attempt`、`completed` 与 `can_start_new` 用于表达填写入口状态；前端不得自行推导服务端可填写性。
+
+### Schema 与版本
+
+- Schema 顶层包含 `schema_version`、标题、说明、匿名与重复填写开关、展示模式、页面和题目。
+- 题目使用稳定 UUID 和判别联合类型：`single_choice`、`multiple_choice`、`text`、`number`。
+- 版本发布时保存完整 Schema 快照和哈希；历史版本不可修改，发布、关闭或重新发布都会作废旧版本未提交草稿。
+- 已发布题目保持稳定 ID；已发布题目的类型不得在同一题目 ID 下修改，发布校验会拒绝此类变更。
+- 跳转只能指向后续题目或 `__end__`；同一答案可能命中不同目标时返回 `SURVEY_RULE_CONFLICT`。
+
+### 问卷错误
+
+| 错误码 | 典型状态 | 含义 |
+| --- | --- | --- |
+| `SURVEY_NOT_FOUND` | `404` | 问卷不存在或不属于当前租户 |
+| `SURVEY_NOT_PUBLISHED` | `409` | 问卷没有在线版本 |
+| `SURVEY_CLOSED` | `409` | 问卷已手动关闭 |
+| `SURVEY_EXPIRED` | `409` | 已超过截止时间 |
+| `SURVEY_ALREADY_SUBMITTED` | `409` | 当前用户已提交且不允许重复填写 |
+| `SURVEY_REVISION_CONFLICT` | `409` | 草稿 revision 已被其他页面更新 |
+| `SURVEY_VERSION_CHANGED` | `409` | 在线版本已切换，旧草稿不可继续 |
+| `SURVEY_SCHEMA_INVALID` | `422` | Schema 不完整或字段约束非法 |
+| `SURVEY_RULE_CONFLICT` | `422` | 跳转规则存在冲突 |
+| `SURVEY_ANSWERS_INVALID` | `422` | 答案不符合题目约束 |
+
+答案校验失败的 `field_errors` 以题目 ID 为键，前端回填到对应题目；跨租户管理资源不暴露存在性。
 
 ## 数据格式
 

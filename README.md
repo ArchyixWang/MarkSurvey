@@ -2,7 +2,7 @@
 
 MarkSurvey 是一个在线问卷系统。本仓库采用规格驱动开发（Specification-Driven Development，SDD）：需求先形成文档与验收标准，再进入实现、联调和提交。
 
-> 当前状态：多租户身份、认证与工作台一期已实现；问卷业务将在后续板块接入。
+> 当前状态：多租户身份认证、问卷 Schema 与版本体系、登录填写与统计一期已实现。
 
 ## 技术栈
 
@@ -39,7 +39,7 @@ MarkSurvey/
 winget install --id MongoDB.Server --version 9.0.2 --exact
 ```
 
-若本机已有兼容的 MongoDB 服务，可直接复用现有实例。后端启动时会 ping 数据库并创建认证模块索引；数据库不可用时应用启动失败。
+若本机已有兼容的 MongoDB 服务，可直接复用现有实例。后端启动时会 ping 数据库并创建认证与问卷索引；数据库不可用时应用启动失败。
 
 ### 后端
 
@@ -56,6 +56,8 @@ Copy-Item .env.example .env
 开发环境默认使用 `MARKSURVEY_EMAIL_BACKEND=console`，验证码会以 warning 级别输出到后端日志。生产环境必须配置 SMTP、至少 32 位的 `MARKSURVEY_AUTH_SECRET` 和 Secure Cookie。
 
 认证接口位于 `/api/v1/auth`，包括滑块挑战、邮箱验证码、注册、两种登录、找回密码、会话恢复和退出。
+
+问卷接口位于 `/api/v1/surveys` 与 `/api/v1/public/surveys`，包括创建、草稿编辑、发布、关闭、截止时间、版本历史、自动草稿、提交、文本答案和统计。所有填写接口要求登录；匿名设置只影响提交后的身份去标识。
 
 ### 前端
 
@@ -74,6 +76,10 @@ npm run dev
 - `/register`：注册并自动建立租户。
 - `/forgot-password`：通过邮箱验证码重置密码。
 - `/workspace`：受保护的多租户工作台。
+- `/workspace/surveys`：问卷列表与创建入口。
+- `/workspace/surveys/:id/edit`：Schema、题目、页面、规则、版本与发布管理。
+- `/workspace/surveys/:id/statistics`：问卷总体与逐题统计。
+- `/survey/:short_code`：受保护填写页；未登录时登录或注册后回到原问卷。
 
 ## 验证命令
 
@@ -105,4 +111,6 @@ npm run check
 - SDD 流程：`docs/process/sdd-workflow.md`
 - 技术选型决策：`docs/decisions/0001-initial-technology-stack.md`
 - 身份认证决策：`docs/decisions/0002-authentication-session-captcha.md`
+- 问卷版本决策：`docs/decisions/0003-survey-schema-versioning.md`
 - 认证与工作台规格：`docs/specs/identity-and-auth.md`
+- 问卷体系规格：`docs/specs/survey-platform.md`

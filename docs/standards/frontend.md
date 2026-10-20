@@ -27,11 +27,13 @@
 
 ```text
 features/surveys/
-├─ api/
-├─ components/
-├─ hooks/
+├─ api.ts
+├─ schema.ts
+├─ flow.ts
 ├─ types.ts
-└─ index.ts
+├─ components/
+├─ editor/
+└─ fill/
 ```
 
 ## 编码规则
@@ -45,6 +47,11 @@ features/surveys/
 - 不直接修改 Ant Design 内部类名；优先使用组件 API、语义化 `classNames/styles` 与 Design Token。
 - 登录成功必须更新 `AuthProvider` 状态再由路由跳转；服务端字段错误应回填表单，通用错误使用 Ant Design `App.useApp()` 提示。
 - 受保护路由必须等待会话恢复完成，不能在加载阶段误判为未登录。
+- 问卷网络请求、Schema 类型、编辑辅助函数和路径计算必须留在 `features/surveys/`，页面只负责路由参数、状态编排和 Ant Design 组件组合。
+- 问卷题目和选项 ID 在编辑与版本复制中必须保持稳定；已发布题目类型不得原地切换，删除后新增必须生成新 ID。
+- 草稿保存、发布、截止时间和版本复制必须携带当前 revision 并处理 `409`；自动保存要有 500ms 防抖，导航或提交前先刷新保存。
+- 填写页必须使用服务端返回的可填写性与 Schema，不得根据链接自行推导关闭、过期或版本状态。
+- 服务端题目字段错误以题目 ID 为键回填；前端表单校验与后端提交校验需保持同一约束语义。
 
 ## UI 与可访问性
 
