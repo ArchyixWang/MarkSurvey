@@ -50,7 +50,7 @@ describe('authentication flows', () => {
     expect(submitButton).toBeEnabled();
     await user.click(submitButton);
 
-    expect(await screen.findByText('工作空间已就绪')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '工作台' })).toBeInTheDocument();
     const loginCall = fetchMock.mock.calls.find(
       ([input, init]) =>
         requestPath(input) === '/api/v1/auth/login/password' && init?.method === 'POST',
@@ -129,11 +129,13 @@ describe('authentication flows', () => {
     const user = userEvent.setup();
     renderApp('/workspace');
 
-    expect(await screen.findByText('工作空间已就绪')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '工作台' })).toBeInTheDocument();
+    expect(screen.getByText('暂无内容')).toBeInTheDocument();
     const userButton = screen.getByText('演示用户').closest('button');
     expect(userButton).not.toBeNull();
     await user.click(userButton as HTMLButtonElement);
     await user.click(await screen.findByText('退出登录'));
+    await user.click(await screen.findByRole('button', { name: '确认退出' }));
 
     expect(await screen.findByRole('heading', { name: '回到你的工作空间' })).toBeInTheDocument();
     const logoutCall = fetchMock.mock.calls.find(
