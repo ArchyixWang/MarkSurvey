@@ -25,7 +25,7 @@ describe('authentication flows', () => {
     document.cookie = 'marksurvey_csrf=csrf-token; path=/';
   });
 
-  it('switches login tabs and gates password login on the slider token', async () => {
+  it('switches login tabs and opens the slider modal before password login', async () => {
     const fetchMock = anonymousSessionFetch((input, init) => {
       if (requestPath(input) === '/api/v1/auth/login/password' && init?.method === 'POST') {
         return Promise.resolve(jsonResponse(testSession));
@@ -44,11 +44,12 @@ describe('authentication flows', () => {
     await user.type(await screen.findByLabelText('账号或邮箱'), 'demo_user');
     await user.type(screen.getByLabelText('密码'), 'Survey1234');
     const submitButton = screen.getByRole('button', { name: '进入工作台' });
-    expect(submitButton).toBeDisabled();
-
-    await user.click(screen.getByRole('button', { name: '完成滑块' }));
     expect(submitButton).toBeEnabled();
+    expect(screen.queryByRole('button', { name: '完成滑块' })).not.toBeInTheDocument();
+
     await user.click(submitButton);
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '完成滑块' }));
 
     expect(await screen.findByRole('heading', { name: '工作台' })).toBeInTheDocument();
     const loginCall = fetchMock.mock.calls.find(
