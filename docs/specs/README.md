@@ -11,4 +11,6 @@
 - `Implemented`：实现与验收完成，文档与代码一致。
 - `Superseded`：已被新版本规格替代。
 
-当前尚无已确认业务模块。
+## 当前规格
+
+- `identity-and-auth.md`：多租户身份、认证与工作台一期，状态 `Approved`。
