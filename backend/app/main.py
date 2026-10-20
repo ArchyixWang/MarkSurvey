@@ -19,6 +19,8 @@ from app.core.errors import (
 from app.modules.identity.email import EmailSender, build_email_sender
 from app.modules.identity.repository import IdentityRepository
 from app.modules.identity.service import IdentityService
+from app.modules.surveys.repository import SurveyRepository
+from app.modules.surveys.service import SurveyService
 
 
 def create_app(
@@ -39,6 +41,10 @@ def create_app(
             settings=application.state.settings,
             repository=repository,
             email_sender=sender,
+        )
+        application.state.survey_service = SurveyService(
+            settings=application.state.settings,
+            repository=SurveyRepository(database),
         )
         try:
             yield
