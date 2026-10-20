@@ -67,8 +67,13 @@
 }
 
 @media (max-width: 520px) {
+  .form :global(.ant-form-item) {
+    margin-bottom: 8px;
+  }
+
   .twoColumns {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 8px;
   }
 
   .tabs :global(.ant-tabs-tab) {
@@ -85,6 +90,37 @@
 
   .footer {
     flex-wrap: wrap;
-    margin-top: 16px;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 520px) and (max-height: 620px) {
+  .form :global(.ant-form-item) {
+    margin-bottom: 2px;
+  }
+
+  .form :global(.ant-form-item-label) {
+    padding-bottom: 0;
+  }
+
+  .form :global(.ant-form-item-label > label) {
+    height: 16px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .form :global(.ant-input-affix-wrapper),
+  .form :global(.ant-input) {
+    min-height: 44px;
+    height: 44px;
+  }
+
+  .submit {
+    height: 44px;
+    margin-top: 0;
+  }
+
+  .footer {
+    margin-top: 0;
   }
 }
