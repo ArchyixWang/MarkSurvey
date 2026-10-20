@@ -15,7 +15,12 @@ class EmailSender(Protocol):
 
 class ConsoleEmailSender:
     async def send_verification_code(self, email: str, code: str, purpose: str) -> None:
-        logger.info("MarkSurvey verification code for %s (%s): %s", email, purpose, code)
+        logger.warning(
+            "MarkSurvey development verification code for %s (%s): %s",
+            email,
+            purpose,
+            code,
+        )
 
 
 class SmtpEmailSender:
