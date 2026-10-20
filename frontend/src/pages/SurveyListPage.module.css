@@ -1,0 +1,134 @@
+.toolbar {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 40px;
+  margin-bottom: 12px;
+}
+
+.search {
+  width: min(360px, 44vw);
+}
+
+.statusFilter {
+  width: 132px;
+}
+
+.total {
+  margin-left: auto;
+  color: var(--color-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.errorBar {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 6%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--color-danger) 24%, transparent);
+  border-radius: 8px;
+}
+
+.tablePanel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.tablePanel :global(.ant-table-wrapper),
+.tablePanel :global(.ant-spin-nested-loading),
+.tablePanel :global(.ant-spin-container) {
+  min-height: 0;
+}
+
+.tablePanel :global(.ant-table) {
+  min-width: 0;
+}
+
+.tablePanel :global(.ant-table-cell) {
+  padding-block: 11px !important;
+}
+
+.tablePanel :global(.ant-table-thead > tr > th) {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 600;
+  background: #fafbfd;
+}
+
+.tablePanel :global(.ant-table-pagination) {
+  flex: 0 0 auto;
+  margin: 14px 16px !important;
+}
+
+.titleCell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.titleCell :global(.ant-typography) {
+  max-width: 100%;
+}
+
+.shortCode {
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dirtyDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--brand-accent);
+  border-radius: 50%;
+}
+
+@media (max-width: 767px) {
+  .toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .search {
+    flex: 1 1 180px;
+    width: auto;
+  }
+
+  .statusFilter {
+    width: 124px;
+  }
+
+  .total {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .tablePanel :global(.ant-table-pagination) {
+    margin-inline: 12px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .statusFilter {
+    width: 116px;
+  }
+}

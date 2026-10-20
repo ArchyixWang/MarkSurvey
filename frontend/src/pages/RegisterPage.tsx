@@ -1,7 +1,7 @@
 import { IdcardOutlined, LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, Typography } from 'antd';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { register } from '../features/auth/api';
 import { useAuth } from '../features/auth/AuthProvider';
@@ -12,6 +12,7 @@ import {
 } from '../features/auth/components/EmailCodeField';
 import { applyServerFieldErrors, errorMessage } from '../features/auth/formErrors';
 import type { RegisterPayload } from '../features/auth/types';
+import { loginPath, safeReturnTo } from '../shared/navigation';
 import styles from './AuthPages.module.css';
 
 const { Text } = Typography;
@@ -25,6 +26,8 @@ export function RegisterPage() {
   const [form] = Form.useForm<RegisterPayload>();
   const { acceptSession } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = safeReturnTo(searchParams.get('returnTo'));
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<PageFeedback | null>(null);
 
@@ -34,7 +37,7 @@ export function RegisterPage() {
     try {
       const session = await register(values);
       acceptSession(session);
-      navigate('/workspace', { replace: true });
+      navigate(returnTo ?? '/workspace', { replace: true });
     } catch (requestError) {
       if (!applyServerFieldErrors(requestError, form)) {
         setFeedback({ type: 'error', message: errorMessage(requestError) });
@@ -154,7 +157,7 @@ export function RegisterPage() {
       </Form>
       <div className={styles.footer}>
         <Text type="secondary">已经有账号？</Text>
-        <Link to="/login">返回登录</Link>
+        <Link to={loginPath(returnTo ?? undefined)}>返回登录</Link>
       </div>
     </AuthShell>
   );

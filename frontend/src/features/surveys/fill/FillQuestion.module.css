@@ -1,0 +1,125 @@
+.question {
+  padding: 18px 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.formItem {
+  margin-bottom: 0;
+}
+
+.formItem :global(.ant-form-item-label) {
+  width: 100%;
+  padding-bottom: 12px;
+  text-align: left;
+}
+
+.formItem :global(.ant-form-item-label > label) {
+  width: 100%;
+  height: auto;
+  color: var(--color-text);
+  white-space: normal;
+}
+
+.formItem :global(.ant-form-item-label > label::after) {
+  display: none;
+}
+
+.label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+}
+
+.number {
+  display: inline-flex;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  color: var(--brand-primary);
+  font-size: 11px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--brand-primary) 8%, var(--color-surface));
+  border-radius: 6px;
+}
+
+.labelText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.titleRow :global(.ant-typography) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.titleRow :global(.ant-tag) {
+  flex: 0 0 auto;
+  margin-inline-end: 0;
+}
+
+.description {
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.choiceGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choiceGroup :global(.ant-radio-wrapper),
+.choiceGroup :global(.ant-checkbox-wrapper) {
+  min-height: 40px;
+  margin-inline-start: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.choiceGroup :global(.ant-radio-wrapper:hover),
+.choiceGroup :global(.ant-checkbox-wrapper:hover) {
+  background: #f7f9fc;
+}
+
+.textField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.counter {
+  align-self: flex-end;
+  font-size: 12px;
+}
+
+.numberField {
+  width: min(240px, 100%);
+}
+
+@media (max-width: 560px) {
+  .question {
+    padding: 14px;
+  }
+
+  .titleRow {
+    align-items: flex-start;
+  }
+}

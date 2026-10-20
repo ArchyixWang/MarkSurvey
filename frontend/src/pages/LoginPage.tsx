@@ -1,7 +1,7 @@
 import { LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, Tabs, Typography } from 'antd';
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { loginWithEmailCode, loginWithPassword } from '../features/auth/api';
 import { useAuth } from '../features/auth/AuthProvider';
@@ -13,6 +13,7 @@ import {
 import { SliderCaptchaModal } from '../features/auth/components/SliderCaptchaModal';
 import { applyServerFieldErrors, errorMessage } from '../features/auth/formErrors';
 import type { EmailLoginPayload, PasswordLoginPayload } from '../features/auth/types';
+import { registerPath, safeReturnTo } from '../shared/navigation';
 import styles from './AuthPages.module.css';
 
 const { Text } = Typography;
@@ -24,7 +25,7 @@ interface PageFeedback {
 
 type PasswordCredentials = Omit<PasswordLoginPayload, 'captcha_token'>;
 
-function PasswordLoginForm() {
+function PasswordLoginForm({ returnTo }: { returnTo: string | null }) {
   const [form] = Form.useForm<PasswordCredentials>();
   const { acceptSession } = useAuth();
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ function PasswordLoginForm() {
     try {
       const session = await loginWithPassword({ ...credentials, captcha_token: captchaToken });
       acceptSession(session);
-      navigate('/workspace', { replace: true });
+      navigate(returnTo ?? '/workspace', { replace: true });
     } catch (requestError) {
       if (!applyServerFieldErrors(requestError, form)) {
         setFeedback({ type: 'error', message: errorMessage(requestError) });
@@ -133,7 +134,7 @@ function PasswordLoginForm() {
   );
 }
 
-function EmailLoginForm() {
+function EmailLoginForm({ returnTo }: { returnTo: string | null }) {
   const [form] = Form.useForm<EmailLoginPayload>();
   const { acceptSession } = useAuth();
   const navigate = useNavigate();
@@ -146,7 +147,7 @@ function EmailLoginForm() {
     try {
       const session = await loginWithEmailCode(values);
       acceptSession(session);
-      navigate('/workspace', { replace: true });
+      navigate(returnTo ?? '/workspace', { replace: true });
     } catch (requestError) {
       if (!applyServerFieldErrors(requestError, form)) {
         setFeedback({ type: 'error', message: errorMessage(requestError) });
@@ -205,8 +206,10 @@ function EmailLoginForm() {
 
 export function LoginPage() {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const notice = (location.state as { notice?: string } | null)?.notice;
   const [noticeOpen, setNoticeOpen] = useState(Boolean(notice));
+  const returnTo = safeReturnTo(searchParams.get('returnTo'));
 
   return (
     <AuthShell title="回到你的工作空间">
@@ -228,18 +231,18 @@ export function LoginPage() {
           {
             key: 'password',
             label: '密码登录',
-            children: <PasswordLoginForm />,
+            children: <PasswordLoginForm returnTo={returnTo} />,
           },
           {
             key: 'email',
             label: '邮箱验证码登录',
-            children: <EmailLoginForm />,
+            children: <EmailLoginForm returnTo={returnTo} />,
           },
         ]}
       />
       <div className={styles.footer}>
         <Text type="secondary">还没有工作空间？</Text>
-        <Link to="/register">立即注册</Link>
+        <Link to={registerPath(returnTo ?? undefined)}>立即注册</Link>
       </div>
     </AuthShell>
   );

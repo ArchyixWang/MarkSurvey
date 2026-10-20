@@ -31,7 +31,7 @@ export class ApiError extends Error {
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH';
   body?: unknown;
   signal?: AbortSignal;
 }

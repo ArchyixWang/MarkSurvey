@@ -1,0 +1,106 @@
+.frame {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.breadcrumbBar {
+  display: flex;
+  flex: 0 0 42px;
+  align-items: center;
+  height: 42px;
+  padding: 0 24px;
+  overflow: hidden;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pageHeader {
+  display: flex;
+  flex: 0 0 54px;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  height: 54px;
+  padding: 0 24px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pageHeading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.kicker {
+  color: var(--brand-primary) !important;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+}
+
+.pageTitle {
+  margin: 0 !important;
+  overflow: hidden;
+  color: var(--color-text) !important;
+  font-size: 20px !important;
+  font-weight: 650 !important;
+  line-height: 24px !important;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.contentBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 20px 24px 24px;
+  overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  .breadcrumbBar {
+    padding: 0 16px;
+  }
+
+  .pageHeader {
+    height: auto;
+    min-height: 54px;
+    padding: 8px 16px;
+  }
+
+  .actions {
+    gap: 6px;
+  }
+
+  .contentBody {
+    padding: 12px 16px 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .breadcrumbBar,
+  .pageHeader {
+    padding-inline: 12px;
+  }
+
+  .contentBody {
+    padding-inline: 12px;
+  }
+}

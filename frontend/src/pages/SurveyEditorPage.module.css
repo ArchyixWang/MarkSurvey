@@ -1,0 +1,155 @@
+.loading {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.pageActions {
+  justify-content: flex-end;
+}
+
+.desktopStatus {
+  display: inline-flex;
+}
+
+.editorAlert {
+  flex: 0 0 auto;
+  margin-bottom: 12px;
+  border-radius: 8px;
+}
+
+.tabs {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.tabs :global(.ant-tabs-nav) {
+  flex: 0 0 auto;
+  margin-bottom: 12px;
+}
+
+.tabs :global(.ant-tabs-content-holder) {
+  flex: 1;
+  min-height: 0;
+}
+
+.tabs :global(.ant-tabs-content),
+.tabs :global(.ant-tabs-tabpane) {
+  height: 100%;
+  min-height: 0;
+}
+
+.tabPanel {
+  height: 100%;
+  min-height: 0;
+  padding: 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.settingsForm {
+  width: min(720px, 100%);
+}
+
+.settingsForm :global(.ant-form-item) {
+  margin-bottom: 18px;
+}
+
+.switchRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.switchRow :global(.ant-form-item) {
+  min-width: 180px;
+}
+
+.sectionToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.questionCollapse {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+}
+
+.questionCollapse :global(.ant-collapse-item) {
+  overflow: hidden;
+  background: #fafbfd;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 8px !important;
+}
+
+.questionCollapse :global(.ant-collapse-header) {
+  align-items: center !important;
+  min-height: 48px;
+  padding-block: 10px !important;
+}
+
+.questionCollapse :global(.ant-collapse-content) {
+  border-top-color: var(--color-border) !important;
+}
+
+.questionCollapse :global(.ant-collapse-content-box) {
+  padding: 14px !important;
+  background: var(--color-surface);
+}
+
+.questionLabel {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.questionLabel :global(.ant-typography) {
+  max-width: min(560px, 52vw);
+}
+
+.requiredMark {
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .desktopStatus {
+    display: none;
+  }
+
+  .pageActions {
+    flex-wrap: nowrap;
+  }
+
+  .pageActions :global(.ant-btn) {
+    min-height: 40px;
+  }
+
+  .tabPanel {
+    padding: 12px;
+  }
+
+  .questionLabel :global(.ant-typography) {
+    max-width: 46vw;
+  }
+}
+
+@media (max-width: 560px) {
+  .pageActions :global(.ant-btn-primary span:not(.anticon)),
+  .pageActions :global(.ant-btn-default span:not(.anticon)) {
+    display: none;
+  }
+}

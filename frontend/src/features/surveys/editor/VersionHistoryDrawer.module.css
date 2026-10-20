@@ -1,0 +1,16 @@
+.drawer :global(.ant-drawer-body) {
+  overflow-y: auto;
+}
+
+.snapshot {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.snapshotHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
