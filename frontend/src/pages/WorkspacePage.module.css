@@ -1,0 +1,334 @@
+.layout {
+  min-height: 100dvh;
+  background: var(--ms-color-layout);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+  padding: 0 clamp(16px, 3vw, 34px);
+  line-height: 1.2;
+  background: color-mix(in srgb, var(--ms-color-surface) 92%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-color-border) 76%, transparent);
+  box-shadow: 0 8px 28px rgb(24 35 31 / 4%);
+  backdrop-filter: blur(18px);
+}
+
+.headerLeft {
+  min-width: 0;
+}
+
+.menuButton {
+  margin-left: -6px;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--ms-color-border);
+}
+
+.tenant {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  min-width: 0;
+  color: var(--ms-color-text-secondary);
+  font-size: 12px;
+}
+
+.tenant :global(.anticon) {
+  color: var(--ms-color-primary);
+}
+
+.tenantName {
+  max-width: min(30vw, 320px);
+  color: var(--ms-color-text-secondary) !important;
+  font-size: 12px;
+}
+
+.userButton {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  height: 44px;
+  padding: 0 10px;
+  border-radius: 12px;
+}
+
+.userName {
+  max-width: 140px;
+  overflow: hidden;
+  color: var(--ms-color-text);
+  font-size: 13px;
+  font-weight: 620;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.downIcon {
+  color: var(--ms-color-text-secondary);
+  font-size: 10px;
+}
+
+.profileSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 210px;
+  padding: 4px 0;
+}
+
+.profileSummary strong {
+  color: var(--ms-color-text);
+  font-size: 13px;
+}
+
+.profileSummary span {
+  color: var(--ms-color-text-secondary);
+  font-size: 11px;
+}
+
+.profileSummary :global(.ant-tag) {
+  align-self: flex-start;
+  margin-top: 4px;
+  margin-inline-end: 0;
+}
+
+.body {
+  min-height: calc(100dvh - 68px);
+}
+
+.sider {
+  position: sticky !important;
+  top: 68px;
+  height: calc(100dvh - 68px);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ms-color-surface) 88%, transparent) !important;
+  border-right: 1px solid color-mix(in srgb, var(--ms-color-border) 76%, transparent);
+}
+
+.siderTop {
+  padding: 24px 24px 12px;
+}
+
+.siderLabel {
+  color: var(--ms-color-text-secondary) !important;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.18em;
+}
+
+.menu {
+  padding: 4px 12px;
+  background: transparent !important;
+  border-inline-end: 0 !important;
+}
+
+.menu :global(.ant-menu-item-group-title) {
+  padding-top: 24px;
+  color: var(--ms-color-text-secondary);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+}
+
+.menu :global(.ant-menu-item) {
+  margin-block: 4px;
+  border-radius: 10px;
+}
+
+.siderFooter {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  left: 22px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-top: 16px;
+  font-size: 10px;
+  border-top: 1px solid var(--ms-color-border);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  background: #2d8c62;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgb(45 140 98 / 12%);
+}
+
+.content {
+  overflow: auto;
+  background:
+    linear-gradient(to right, rgb(24 35 31 / 2.8%) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(24 35 31 / 2.8%) 1px, transparent 1px),
+    var(--ms-color-layout);
+  background-size: 56px 56px;
+}
+
+.contentInner {
+  width: min(1120px, 100%);
+  min-height: calc(100dvh - 68px);
+  padding: clamp(28px, 4vw, 54px);
+  margin: 0 auto;
+}
+
+.pageHeader {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 34px;
+}
+
+.eyebrow {
+  color: var(--ms-color-primary) !important;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.2em;
+}
+
+.pageTitle {
+  margin: 8px 0 8px !important;
+  color: var(--ms-color-text) !important;
+  font-size: clamp(30px, 3.4vw, 42px) !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.05em;
+}
+
+.pageSubtitle {
+  max-width: 600px;
+  margin: 0 !important;
+  color: var(--ms-color-text-secondary) !important;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ownerTag {
+  margin-top: 24px;
+  color: #176c4d;
+  background: #e8f4ed;
+  border-radius: 999px;
+}
+
+.emptyPanel {
+  position: relative;
+  display: grid;
+  min-height: 430px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ms-color-surface) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ms-color-border) 76%, transparent);
+  border-radius: 24px;
+  box-shadow: 0 20px 70px rgb(24 35 31 / 7%);
+  place-items: center;
+}
+
+.emptyPanel::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  content: '';
+  background: linear-gradient(90deg, var(--ms-color-primary), #d3a343);
+}
+
+.emptyGlow {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  width: 380px;
+  height: 300px;
+  background: radial-gradient(circle, rgb(18 95 85 / 10%), transparent 68%);
+  transform: translateX(-50%);
+}
+
+.emptyPanel :global(.ant-empty) {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  padding: 40px 24px;
+}
+
+.emptyPanel :global(.ant-empty-image) {
+  height: 70px;
+  opacity: 0.62;
+}
+
+.emptyCopy :global(.ant-typography) {
+  margin-bottom: 0;
+}
+
+.emptyCopy h4 {
+  margin: 4px 0 10px !important;
+  color: var(--ms-color-text) !important;
+  font-size: 19px !important;
+  letter-spacing: -0.025em;
+}
+
+.emptyCopy p {
+  margin-bottom: 14px !important;
+  color: var(--ms-color-text-secondary) !important;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.footer {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 24px 4px 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.drawer :global(.ant-drawer-body) {
+  padding: 12px;
+}
+
+@media (max-width: 767px) {
+  .header {
+    height: 64px;
+    padding: 0 14px;
+  }
+
+  .divider,
+  .userName,
+  .downIcon {
+    display: none;
+  }
+
+  .tenantName {
+    max-width: 42vw;
+  }
+
+  .contentInner {
+    min-height: calc(100dvh - 64px);
+    padding: 24px 16px 32px;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .ownerTag {
+    margin-top: 0;
+  }
+
+  .emptyPanel {
+    min-height: 360px;
+    border-radius: 20px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 5px;
+  }
+}

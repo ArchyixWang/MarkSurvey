@@ -1,0 +1,89 @@
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form :global(.ant-form-item) {
+  margin-bottom: 18px;
+}
+
+.submit {
+  height: 44px;
+  margin-top: 4px;
+  font-weight: 650;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgb(18 95 85 / 16%);
+}
+
+.auxiliary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 24px;
+  margin: -2px 0 18px;
+  font-size: 12px;
+}
+
+.auxiliary a,
+.footer a {
+  color: var(--ms-color-primary);
+  font-weight: 650;
+}
+
+.captcha {
+  padding: 16px;
+  margin-bottom: 18px;
+  background: color-mix(in srgb, var(--ms-color-layout) 66%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ms-color-border) 74%, transparent);
+  border-radius: 14px;
+}
+
+.captchaLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.captchaLabel span:last-child {
+  color: var(--ms-color-text-secondary);
+  font-weight: 400;
+}
+
+.tabs :global(.ant-tabs-nav) {
+  margin-bottom: 24px;
+}
+
+.footer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+  color: var(--ms-color-text-secondary);
+  font-size: 12px;
+}
+
+.notice {
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  color: var(--ms-color-text-secondary);
+  font-size: 12px;
+  line-height: 1.65;
+  background: color-mix(in srgb, var(--ms-color-primary-bg) 72%, transparent);
+  border-radius: 12px;
+}
+
+.twoColumns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+}
+
+@media (max-width: 520px) {
+  .twoColumns {
+    grid-template-columns: 1fr;
+  }
+}

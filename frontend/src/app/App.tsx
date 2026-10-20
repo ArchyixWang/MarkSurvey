@@ -1,5 +1,14 @@
-import { HomePage } from '../pages/HomePage';
+import { BrowserRouter } from 'react-router-dom';
+
+import { AuthProvider } from '../features/auth/AuthProvider';
+import { AppRoutes } from './AppRoutes';
 
 export function App() {
-  return <HomePage />;
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }

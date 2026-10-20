@@ -1,0 +1,68 @@
+.root {
+  width: 100%;
+}
+
+.instruction {
+  color: var(--ms-color-text-secondary);
+  font-size: 12px;
+}
+
+.instruction :global(.anticon) {
+  margin-right: 5px;
+  color: var(--ms-color-primary);
+}
+
+.successText {
+  color: #176c4d;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #e5e2d8;
+  border: 1px solid color-mix(in srgb, var(--ms-color-border) 76%, transparent);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 35%);
+}
+
+.background {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+
+.piece {
+  position: absolute;
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 5px 9px rgb(12 35 29 / 25%));
+  transition: left 80ms linear;
+  user-select: none;
+}
+
+.verifiedOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgb(18 95 85 / 16%);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 60%);
+  pointer-events: none;
+}
+
+.slider {
+  margin: 0 8px !important;
+}
+
+.loading {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+.skeleton {
+  width: 100% !important;
+  height: 160px !important;
+}

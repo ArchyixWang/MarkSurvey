@@ -1,0 +1,209 @@
+.page {
+  position: relative;
+  display: grid;
+  min-height: 100dvh;
+  padding: clamp(20px, 4vw, 48px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 18%, rgb(211 163 67 / 16%), transparent 28%),
+    radial-gradient(circle at 86% 78%, rgb(18 95 85 / 14%), transparent 32%),
+    var(--ms-color-layout);
+  place-items: center;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgb(24 35 31 / 5%) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(24 35 31 / 5%) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, #000 20%, transparent 76%);
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.92fr);
+  width: min(1120px, 100%);
+  min-height: min(760px, calc(100dvh - 64px));
+  overflow: hidden;
+  background: var(--ms-color-surface);
+  border: 1px solid color-mix(in srgb, var(--ms-color-border) 70%, transparent);
+  border-radius: 32px;
+  box-shadow: 0 32px 100px rgb(24 35 31 / 16%);
+}
+
+.story {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(32px, 5vw, 64px);
+  color: #f8f5eb;
+  background:
+    linear-gradient(150deg, color-mix(in srgb, var(--ms-color-primary) 88%, #083c35), #0a3934),
+    var(--ms-color-primary);
+}
+
+.story :global(.ant-typography) {
+  color: inherit;
+}
+
+.storyCopy {
+  margin: clamp(56px, 10vh, 108px) 0 40px;
+}
+
+.eyebrow {
+  color: color-mix(in srgb, currentColor 66%, transparent) !important;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.2em;
+}
+
+.storyTitle {
+  margin: 18px 0 22px !important;
+  color: #fffdf7 !important;
+  font-size: clamp(42px, 5vw, 66px) !important;
+  font-weight: 610 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.055em;
+}
+
+.storyLead {
+  max-width: 480px;
+  margin: 0 !important;
+  color: rgb(255 253 247 / 70%) !important;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.principles {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 40px;
+}
+
+.principle {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 14px 0;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+
+.principle span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.principle strong {
+  color: #fffdf7;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.principle small {
+  color: rgb(255 253 247 / 60%);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.principleIndex {
+  padding-top: 2px;
+  color: #d7b56f;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.storyFooter {
+  color: rgb(255 253 247 / 42%) !important;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(32px, 5vw, 56px);
+  background: color-mix(in srgb, var(--ms-color-surface) 92%, #faf8f1);
+}
+
+.mobileBrand {
+  display: none;
+  margin-bottom: 36px;
+}
+
+.header {
+  margin-bottom: 30px;
+}
+
+.header .eyebrow {
+  color: var(--ms-color-primary) !important;
+}
+
+.title {
+  margin: 12px 0 8px !important;
+  color: var(--ms-color-text) !important;
+  font-size: clamp(28px, 3vw, 36px) !important;
+  font-weight: 660 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.045em;
+}
+
+.subtitle {
+  max-width: 420px;
+  margin: 0 !important;
+  color: var(--ms-color-text-secondary) !important;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.formArea {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.panelFooter {
+  display: block;
+  margin-top: 28px;
+  color: var(--ms-color-text-secondary) !important;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 0;
+  }
+
+  .shell {
+    grid-template-columns: 1fr;
+    width: 100%;
+    min-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .story {
+    display: none;
+  }
+
+  .mobileBrand {
+    display: block;
+  }
+
+  .panel {
+    justify-content: center;
+    width: min(520px, 100%);
+    margin: 0 auto;
+    padding: 36px 24px 28px;
+  }
+}

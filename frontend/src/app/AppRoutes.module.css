@@ -1,0 +1,11 @@
+.loadingPage {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 50% 38%, rgb(18 95 85 / 8%), transparent 32%),
+    var(--ms-color-layout);
+}
