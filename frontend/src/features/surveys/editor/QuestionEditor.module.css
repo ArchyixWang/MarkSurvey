@@ -36,6 +36,18 @@
   margin-left: auto;
 }
 
+.libraryBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: -2px 0 12px;
+}
+
+.libraryBar :global(.ant-tag) {
+  margin-inline-end: 0;
+}
+
 .optionsSection {
   display: flex;
   flex-direction: column;

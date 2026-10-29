@@ -105,6 +105,7 @@ export function QuestionContentModal({
     if (!open) {
       return;
     }
+    form.resetFields();
     form.setFieldsValue(formValues(initial, initialType));
     setOptions(optionsFor(initial));
     setOptionError(null);

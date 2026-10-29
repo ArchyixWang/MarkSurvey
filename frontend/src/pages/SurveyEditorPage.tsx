@@ -1,6 +1,7 @@
 import {
   BarChartOutlined,
   CloseCircleOutlined,
+  DatabaseOutlined,
   FieldTimeOutlined,
   HistoryOutlined,
   LinkOutlined,
@@ -37,6 +38,23 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { errorMessage } from '../features/auth/formErrors';
+import {
+  createLibraryQuestion,
+  createLibraryQuestionVersion,
+  getLibraryQuestion,
+} from '../features/questionLibrary/api';
+import { LibraryQuestionPicker } from '../features/questionLibrary/components/LibraryQuestionPicker';
+import { QuestionVersionDrawer } from '../features/questionLibrary/components/QuestionVersionDrawer';
+import {
+  libraryContentFromSurvey,
+  surveyContentSignature,
+  surveyQuestionFromLibrary,
+  withLibraryContent,
+} from '../features/questionLibrary/adapters';
+import type {
+  LibraryQuestionDetail,
+  LibraryVersion,
+} from '../features/questionLibrary/types';
 import {
   closeSurvey,
   getSurvey,
@@ -119,6 +137,9 @@ export function SurveyEditorPage() {
   const [versionsOpen, setVersionsOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
   const [deadlineSaving, setDeadlineSaving] = useState(false);
+  const [libraryPickerOpen, setLibraryPickerOpen] = useState(false);
+  const [versionQuestion, setVersionQuestion] = useState<SurveyQuestion | null>(null);
+  const [savingLibraryQuestionId, setSavingLibraryQuestionId] = useState<string | null>(null);
 
   const applyDetail = useCallback(
     (next: SurveyDetail) => {
@@ -190,16 +211,16 @@ export function SurveyEditorPage() {
     setEditorError(summary);
   };
 
-  const saveDraft = async (): Promise<SurveyDetail | null> => {
-    if (!schema) {
-      return null;
-    }
+  const persistDraft = async (
+    targetSchema: SurveySchema,
+    successMessage = '草稿已保存',
+  ): Promise<SurveyDetail | null> => {
     setSaving(true);
     setEditorError(null);
     try {
-      const updated = await saveSurveyDraft(id, schema, revision);
+      const updated = await saveSurveyDraft(id, targetSchema, revision);
       applyDetail(updated);
-      message.success('草稿已保存');
+      message.success(successMessage);
       return updated;
     } catch (requestError) {
       reportError(requestError);
@@ -207,6 +228,10 @@ export function SurveyEditorPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const saveDraft = (): Promise<SurveyDetail | null> => {
+    return schema ? persistDraft(schema) : Promise.resolve(null);
   };
 
   const handlePublish = async () => {
@@ -261,7 +286,17 @@ export function SurveyEditorPage() {
   };
 
   const updateQuestion = (nextQuestion: SurveyQuestion) => {
-    const sanitized = removeDanglingRules(nextQuestion);
+    const previous = schema?.questions.find((question) => question.id === nextQuestion.id);
+    let sanitized = removeDanglingRules(nextQuestion);
+    if (
+      previous?.library_ref?.linked
+      && surveyContentSignature(previous) !== surveyContentSignature(sanitized)
+    ) {
+      sanitized = {
+        ...sanitized,
+        library_ref: { ...previous.library_ref, linked: false },
+      };
+    }
     setSchema((current) =>
       current
         ? {
@@ -275,11 +310,10 @@ export function SurveyEditorPage() {
     setDirty(true);
   };
 
-  const addQuestion = (type: QuestionType) => {
+  const appendQuestion = (question: SurveyQuestion) => {
     if (!schema) {
       return;
     }
-    const question = createQuestion(type, schema.questions.length);
     const questions = [...schema.questions, question];
     let pages = schema.pages;
     if (schema.presentation.mode === 'paged') {
@@ -293,6 +327,126 @@ export function SurveyEditorPage() {
     }
     changeSchema({ ...schema, questions, pages });
     setActiveQuestionKeys([question.id]);
+  };
+
+  const addQuestion = (type: QuestionType) => {
+    if (!schema) {
+      return;
+    }
+    appendQuestion(createQuestion(type, schema.questions.length));
+  };
+
+  const insertLibraryQuestion = (
+    libraryQuestion: LibraryQuestionDetail,
+    version: LibraryVersion,
+  ) => {
+    if (!schema) {
+      return;
+    }
+    if (
+      schema.questions.some(
+        (question) =>
+          question.library_ref?.linked
+          && question.library_ref.question_id === libraryQuestion.id,
+      )
+    ) {
+      message.error('该题目已在问卷中');
+      return;
+    }
+    appendQuestion(
+      surveyQuestionFromLibrary(version.content, libraryQuestion.id, version.id),
+    );
+    setLibraryPickerOpen(false);
+    message.success('题目已插入');
+  };
+
+  const switchLibraryVersion = (version: LibraryVersion) => {
+    if (!schema || !versionQuestion?.library_ref) {
+      return;
+    }
+    const updated = removeDanglingRules(
+      withLibraryContent(
+        versionQuestion,
+        version.content,
+        versionQuestion.library_ref.question_id,
+        version.id,
+      ),
+    );
+    setSchema({
+      ...schema,
+      questions: schema.questions.map((question) =>
+        question.id === updated.id ? updated : question,
+      ),
+    });
+    setDirty(true);
+    setActiveQuestionKeys([updated.id]);
+    setVersionQuestion(null);
+    message.success(`已切换到 v${version.version_number}`);
+  };
+
+  const unlinkLibraryQuestion = (questionId: string) => {
+    if (!schema) {
+      return;
+    }
+    setSchema({
+      ...schema,
+      questions: schema.questions.map((question) =>
+        question.id === questionId && question.library_ref
+          ? { ...question, library_ref: { ...question.library_ref, linked: false } }
+          : question,
+      ),
+    });
+    setDirty(true);
+  };
+
+  const saveQuestionToLibrary = async (question: SurveyQuestion) => {
+    if (!schema) {
+      return;
+    }
+    setSavingLibraryQuestionId(question.id);
+    try {
+      const content = libraryContentFromSurvey(question);
+      let target: LibraryQuestionDetail | null = null;
+      if (question.library_ref) {
+        const source = await getLibraryQuestion(question.library_ref.question_id).catch(
+          () => null,
+        );
+        if (
+          source
+          && !source.archived
+          && source.question_type === question.type
+        ) {
+          target = await createLibraryQuestionVersion(
+            source.id,
+            content,
+            source.latest_version_number,
+          );
+        }
+      }
+      target ??= await createLibraryQuestion(content);
+      const nextSchema: SurveySchema = {
+        ...schema,
+        questions: schema.questions.map((item) =>
+          item.id === question.id
+            ? {
+                ...item,
+                library_ref: {
+                  question_id: target.id,
+                  version_id: target.latest_version_id,
+                  linked: true,
+                },
+              }
+            : item,
+        ),
+      };
+      setSchema(nextSchema);
+      setDirty(true);
+      await persistDraft(nextSchema, '已保存到题库');
+    } catch (requestError) {
+      reportError(requestError);
+    } finally {
+      setSavingLibraryQuestionId(null);
+    }
   };
 
   const deleteQuestion = (questionId: string) => {
@@ -595,6 +749,12 @@ export function SurveyEditorPage() {
             children: (
               <div className={styles.tabPanel}>
                 <div className={styles.sectionToolbar}>
+                  <Button
+                    icon={<DatabaseOutlined />}
+                    onClick={() => setLibraryPickerOpen(true)}
+                  >
+                    从题库插入
+                  </Button>
                   <Dropdown
                     menu={{
                       items: (Object.keys(questionTypeLabels) as QuestionType[]).map((type) => ({
@@ -631,6 +791,11 @@ export function SurveyEditorPage() {
                           <Text ellipsis={{ tooltip: question.title }}>
                             {question.title || '未命名题目'}
                           </Text>
+                          {question.library_ref?.linked && (
+                            <Tag variant="filled" color="cyan">
+                              题库
+                            </Tag>
+                          )}
                           {question.required && <span className={styles.requiredMark}>*</span>}
                         </div>
                       ),
@@ -644,6 +809,10 @@ export function SurveyEditorPage() {
                           onMove={(offset) => moveQuestion(index, offset)}
                           onDelete={() => deleteQuestion(question.id)}
                           onEditRules={() => setRuleQuestionId(question.id)}
+                          onUnlinkLibrary={() => unlinkLibraryQuestion(question.id)}
+                          onSwitchLibraryVersion={() => setVersionQuestion(question)}
+                          onSaveToLibrary={() => void saveQuestionToLibrary(question)}
+                          savingToLibrary={savingLibraryQuestionId === question.id}
                         />
                       ),
                     }))}
@@ -681,6 +850,21 @@ export function SurveyEditorPage() {
             next.draft_schema.questions[0] ? [next.draft_schema.questions[0].id] : [],
           );
         }}
+      />
+      <LibraryQuestionPicker
+        open={libraryPickerOpen}
+        usedQuestionIds={schema.questions.flatMap((question) =>
+          question.library_ref?.linked ? [question.library_ref.question_id] : [],
+        )}
+        onClose={() => setLibraryPickerOpen(false)}
+        onInsert={insertLibraryQuestion}
+      />
+      <QuestionVersionDrawer
+        open={Boolean(versionQuestion)}
+        questionId={versionQuestion?.library_ref?.question_id ?? null}
+        currentVersionId={versionQuestion?.library_ref?.version_id}
+        onClose={() => setVersionQuestion(null)}
+        onApply={switchLibraryVersion}
       />
       <Modal
         open={deadlineOpen}
