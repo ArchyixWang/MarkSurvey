@@ -36,6 +36,26 @@ const SurveyStatisticsPage = lazy(() =>
 const SurveyFillPage = lazy(() =>
   import('../pages/SurveyFillPage').then((module) => ({ default: module.SurveyFillPage })),
 );
+const QuestionLibraryPage = lazy(() =>
+  import('../pages/QuestionLibraryPage').then((module) => ({
+    default: module.QuestionLibraryPage,
+  })),
+);
+const QuestionDetailPage = lazy(() =>
+  import('../pages/QuestionDetailPage').then((module) => ({
+    default: module.QuestionDetailPage,
+  })),
+);
+const QuestionStatisticsPage = lazy(() =>
+  import('../pages/QuestionStatisticsPage').then((module) => ({
+    default: module.QuestionStatisticsPage,
+  })),
+);
+const SharedQuestionPage = lazy(() =>
+  import('../pages/SharedQuestionPage').then((module) => ({
+    default: module.SharedQuestionPage,
+  })),
+);
 
 function RouteLoading() {
   return (
@@ -87,6 +107,19 @@ export function AppRoutes() {
           <Route path="surveys" element={<SurveyListPage />} />
           <Route path="surveys/:id/edit" element={<SurveyEditorPage />} />
           <Route path="surveys/:id/statistics" element={<SurveyStatisticsPage />} />
+          <Route path="questions" element={<QuestionLibraryPage />} />
+          <Route path="questions/:id" element={<QuestionDetailPage />} />
+          <Route path="questions/:id/statistics" element={<QuestionStatisticsPage />} />
+        </Route>
+        <Route
+          path="/shared"
+          element={
+            <ProtectedRoute>
+              <WorkspaceShell />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="questions/:token" element={<SharedQuestionPage />} />
         </Route>
         <Route
           path="/survey/:short_code"

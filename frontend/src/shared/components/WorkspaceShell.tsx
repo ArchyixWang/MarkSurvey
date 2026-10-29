@@ -1,6 +1,7 @@
 import {
   ApartmentOutlined,
   AppstoreOutlined,
+  DatabaseOutlined,
   DownOutlined,
   FileTextOutlined,
   LogoutOutlined,
@@ -50,6 +51,11 @@ const workspaceItems: MenuProps['items'] = [
         label: '问卷管理',
       },
       {
+        key: '/workspace/questions',
+        icon: <DatabaseOutlined />,
+        label: '题目库',
+      },
+      {
         key: 'members',
         icon: <TeamOutlined />,
         label: '成员管理',
@@ -60,6 +66,9 @@ const workspaceItems: MenuProps['items'] = [
 ];
 
 function selectedMenuKey(pathname: string): string {
+  if (pathname.startsWith('/workspace/questions') || pathname.startsWith('/shared/questions')) {
+    return '/workspace/questions';
+  }
   return pathname.startsWith('/workspace/surveys') ? '/workspace/surveys' : '/workspace';
 }
 
