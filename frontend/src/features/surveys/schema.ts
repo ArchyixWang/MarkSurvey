@@ -66,6 +66,7 @@ export function changeQuestionType(
     title: question.title,
     description: question.description ?? '',
     required: question.required,
+    library_ref: question.library_ref,
   };
 }
 

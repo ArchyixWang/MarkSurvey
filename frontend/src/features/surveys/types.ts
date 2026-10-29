@@ -34,11 +34,18 @@ export interface JumpRule {
   condition: JumpCondition;
 }
 
+export interface LibraryReference {
+  question_id: string;
+  version_id: string;
+  linked: boolean;
+}
+
 interface QuestionBase {
   id: string;
   title: string;
   description?: string;
   required: boolean;
+  library_ref?: LibraryReference | null;
 }
 
 export interface SingleChoiceQuestion extends QuestionBase {
