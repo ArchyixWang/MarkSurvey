@@ -1,0 +1,55 @@
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.heading :global(.ant-tag) {
+  margin-inline-end: 0;
+}
+
+.title {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.options {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.options :global(.ant-list-item) {
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+}
+
+.optionIndex {
+  display: inline-flex;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--color-muted);
+  font-size: 11px;
+  background: #f2f4f7;
+  border-radius: 6px;
+}
+
+.constraints {
+  margin-top: 2px;
+}
+
+.constraints :global(.ant-descriptions-item-label),
+.constraints :global(.ant-descriptions-item-content) {
+  padding-bottom: 6px;
+}
+
