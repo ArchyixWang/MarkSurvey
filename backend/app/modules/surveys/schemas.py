@@ -79,11 +79,18 @@ class JumpRule(ApiModel):
     condition: JumpCondition
 
 
+class LibraryReference(ApiModel):
+    question_id: str = Field(min_length=1, max_length=64)
+    version_id: str = Field(min_length=1, max_length=64)
+    linked: bool = True
+
+
 class QuestionBase(ApiModel):
     id: str = Field(min_length=1, max_length=64)
     title: str = Field(min_length=1, max_length=300)
     description: str = Field(default="", max_length=1000)
     required: bool = False
+    library_ref: LibraryReference | None = None
 
     @field_validator("title")
     @classmethod

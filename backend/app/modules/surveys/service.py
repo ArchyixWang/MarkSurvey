@@ -15,6 +15,7 @@ from pymongo.errors import DuplicateKeyError
 from app.core.config import Settings
 from app.core.errors import ApiError
 from app.modules.identity.models import AuthContext
+from app.modules.question_library.service import QuestionLibraryService
 from app.modules.surveys.flow import (
     rule_conflicts,
     validate_draft_answers,
@@ -90,9 +91,16 @@ def _utc(value: datetime) -> datetime:
 
 
 class SurveyService:
-    def __init__(self, *, settings: Settings, repository: SurveyRepository) -> None:
+    def __init__(
+        self,
+        *,
+        settings: Settings,
+        repository: SurveyRepository,
+        question_library: QuestionLibraryService,
+    ) -> None:
         self.settings = settings
         self.repository = repository
+        self.question_library = question_library
 
     def _now(self) -> datetime:
         return datetime.now(UTC)
@@ -284,6 +292,13 @@ class SurveyService:
                         field_errors={"questions": f"题目 {question.id} 的类型不可修改"},
                     )
 
+        previous_draft = self._parse_schema(survey.draft_schema)
+        await self.question_library.validate_survey_refs(
+            payload.schema_data,
+            context,
+            previous_schema=previous_draft,
+        )
+
         raw_schema = payload.schema_data.model_dump(mode="json")
         updated = await self.repository.update_draft(
             survey.id,
@@ -324,6 +339,12 @@ class SurveyService:
                 field_errors={question_id: "同一答案不能命中不同跳转目标"},
             )
 
+        await self.question_library.validate_survey_refs(
+            schema,
+            context,
+            previous_schema=schema,
+        )
+
         now = self._now()
         try:
             version = await self.repository.create_version(
@@ -336,6 +357,20 @@ class SurveyService:
         except VersionNumberConflictError as error:
             raise ApiError(409, "SURVEY_REVISION_CONFLICT", "版本已更新，请刷新") from error
 
+        try:
+            await self.question_library.record_survey_version(
+                schema,
+                context,
+                survey_id=survey.id,
+                survey_version_id=version.id,
+                survey_version_number=version.version_number,
+                now=now,
+            )
+        except Exception:
+            await self.question_library.clear_survey_version_usages(version.id)
+            await self.repository.delete_version(version.id, survey.id)
+            raise
+
         published = await self.repository.mark_published(
             survey.id,
             context.tenant.id,
@@ -344,6 +379,7 @@ class SurveyService:
             now,
         )
         if published is None:
+            await self.question_library.clear_survey_version_usages(version.id)
             await self.repository.delete_version(version.id, survey.id)
             raise ApiError(409, "SURVEY_REVISION_CONFLICT", "草稿已在其他页面更新，请刷新")
         await self.repository.invalidate_open_attempts(survey.id, "version_changed", now)

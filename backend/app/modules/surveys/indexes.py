@@ -38,6 +38,7 @@ async def ensure_survey_indexes(database: AsyncDatabase) -> None:
     await database.survey_responses.create_index(
         [("survey_id", ASCENDING), ("version_id", ASCENDING), ("status", ASCENDING)]
     )
+    await database.survey_responses.create_index([("version_id", ASCENDING)])
     await database.survey_responses.create_index(
         [("survey_id", ASCENDING), ("submitted_at", DESCENDING)]
     )
