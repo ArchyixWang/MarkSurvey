@@ -285,4 +285,3 @@ export const linkedLibraryQuestion: LibraryQuestionDetail = {
   latest_version_id: 'linked-ver-1',
   latest_version: linkedLibraryVersion,
 };
-
