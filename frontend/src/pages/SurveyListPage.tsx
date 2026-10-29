@@ -311,7 +311,7 @@ export function SurveyListPage() {
             showQuickJumper: true,
             pageSizeOptions: [10, 20, 50],
             showTotal: (count) => `共 ${count} 条`,
-            position: ['bottomRight'],
+            placement: ['bottomEnd'],
           }}
           locale={{
             emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无问卷" />,

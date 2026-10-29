@@ -398,7 +398,7 @@ export function QuestionLibraryPage() {
                       showQuickJumper: true,
                       pageSizeOptions: [10, 20, 50],
                       showTotal: (count) => `共 ${count} 条`,
-                      position: ['bottomRight'],
+                      placement: ['bottomEnd'],
                       onChange: (nextPage, nextPageSize) => {
                         setPage(nextPage);
                         setPageSize(nextPageSize);
@@ -447,7 +447,7 @@ export function QuestionLibraryPage() {
                       showQuickJumper: true,
                       pageSizeOptions: [10, 20, 50],
                       showTotal: (count) => `共 ${count} 条`,
-                      position: ['bottomRight'],
+                      placement: ['bottomEnd'],
                       onChange: (nextPage, nextPageSize) => {
                         setInboxPage(nextPage);
                         setInboxPageSize(nextPageSize);

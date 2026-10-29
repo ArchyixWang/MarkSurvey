@@ -118,7 +118,12 @@ export function QuestionStatisticsPage() {
       width: 230,
       render: (value: number) => (
         <div className={styles.percentage}>
-          <Progress percent={Math.min(value, 100)} showInfo={false} size="small" />
+          <Progress
+            percent={Math.min(value, 100)}
+            showInfo={false}
+            size="small"
+            strokeColor={'var(--brand-primary)'}
+          />
           <Text type="secondary">{formatPercent(value)}</Text>
         </div>
       ),
