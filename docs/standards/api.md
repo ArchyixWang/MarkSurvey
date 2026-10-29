@@ -1,6 +1,6 @@
 # API 规范
 
-状态：认证与问卷 v1 契约生效
+状态：认证、问卷与题库 v1 契约生效
 适用范围：前后端 HTTP 接口
 
 ## 地址与版本
@@ -70,7 +70,7 @@
 
 - 会话 Cookie：HttpOnly、SameSite=Lax、24 小时有效，生产环境 Secure。
 - CSRF Cookie：可由前端脚本读取；已登录状态下的受保护变更接口要求 Cookie 与 `X-CSRF-Token` 请求头一致。
-- 当前受保护变更接口为 `POST /auth/logout`。未认证的登录、注册、找回密码接口依靠验证码、滑块令牌和限流保护。
+- 当前受保护变更接口包括 `POST /auth/logout` 以及问卷、题库的全部写操作。未认证的登录、注册、找回密码接口依靠验证码、滑块令牌和限流保护。
 - 会话 Cookie 名为 `marksurvey_session`，CSRF Cookie 名为 `marksurvey_csrf`；两者均通过配置可替换。
 
 ## 问卷接口
@@ -129,6 +129,51 @@
 | `SURVEY_ANSWERS_INVALID` | `422` | 答案不符合题目约束 |
 
 答案校验失败的 `field_errors` 以题目 ID 为键，前端回填到对应题目；跨租户管理资源不暴露存在性。
+
+## 题库接口
+
+题库管理接口位于 `/api/v1/question-library`。所有接口要求有效会话，除共享链接读取与导入外均只允许题目所有者访问；写操作要求 CSRF，跨用户或跨租户管理资源统一返回 `404`。
+
+| 方法 | 路径 | 请求要点 | 成功响应 |
+| --- | --- | --- | --- |
+| POST | `/questions` | `content` | `201`，创建题目根与不可变 v1 |
+| GET | `/questions` | `page`、`page_size`、`search`、`question_type`、`archived` | `200`，当前用户题目分页列表 |
+| GET | `/questions/{id}` | 无 | `200`，最新版本、版本数、来源和归档状态 |
+| POST | `/questions/{id}/versions` | `content`、`base_version_number` | `201`，基于最新版本创建新版本 |
+| GET | `/questions/{id}/versions` | 无 | `200`，不可变版本历史 |
+| GET | `/questions/{id}/versions/{version_id}` | 无 | `200`，读取指定版本 |
+| POST | `/questions/{id}/versions/{version_id}/restore` | `base_version_number` | `200`，复制旧版本生成新最新版本 |
+| POST | `/questions/{id}/versions/{version_id}/derive` | `content` | `201`，派生新题目根 |
+| POST | `/questions/{id}/archive` | 无 | `200`，归档题目 |
+| POST | `/questions/{id}/unarchive` | 无 | `200`，恢复归档题目 |
+| POST | `/questions/{id}/shares` | 可选 `expires_at` | `201`，创建登录访问分享并返回一次性明文令牌 |
+| GET | `/questions/{id}/shares` | 无 | `200`，分享记录及有效状态 |
+| POST | `/questions/{id}/shares/{share_id}/revoke` | 无 | `200`，撤销分享 |
+| GET | `/shares/inbox` | `page`、`page_size` | `200`，共享区复制记录 |
+| GET | `/shared/{token}` | 无 | `200`，分享来源题目与可复制版本；未登录 `401`，不可用 `410` |
+| POST | `/shared/{token}/imports` | `version_id` | `201`，创建接收方独立冻结题目 |
+| GET | `/questions/{id}/usage` | 无 | `200`，按本人问卷聚合的使用记录 |
+| GET | `/questions/{id}/statistics` | 无 | `200`，总体和逐版本跨问卷统计 |
+| GET | `/questions/{id}/statistics/text-values` | `page`、`page_size`、可选 `version_id` | `200`，分页文本答案 |
+
+### 题库版式与问卷关联
+
+- 题目根锁定题型；普通修改创建新版本，改变题型必须派生新题目根。
+- 分享令牌只保存 SHA-256 哈希，接收方每次导入都会创建自有题目根 v1，不跟随来源更新。
+- 问卷 Schema 保持 `schema_version = 1`，题目可选包含 `library_ref: { question_id, version_id, linked }`。
+- 关联题目内容必须与所引用版本一致；问卷内可独立调整必答与跳转规则。修改内容会解除关联，下一次发布不再写入该题目的使用记录。
+- 发布校验关联版本属于当前用户、题型一致且内容一致；发布成功后写入使用记录，失败时清理本次问卷版本与使用记录。
+
+### 题库错误
+
+| 错误码 | 典型状态 | 含义 |
+| --- | --- | --- |
+| `QUESTION_LIBRARY_INVALID` | `422` | 题目内容或版本演进不合法 |
+| `QUESTION_VERSION_CONFLICT` | `409` | 创建或恢复版本时基础版本号已过期 |
+| `QUESTION_SHARE_UNAVAILABLE` | `410` | 分享过期、撤销或来源题目归档 |
+| `QUESTION_ARCHIVED` | `422` | 归档题目不能新链接入问卷 |
+| `QUESTION_REFERENCE_INVALID` | `422` | 关联版本不属于当前用户或内容不一致 |
+| `QUESTION_LIBRARY_NOT_FOUND` | `404` | 题目不存在或不属于当前用户 |
 
 ## 数据格式
 

@@ -2,7 +2,7 @@
 
 文档是需求和实现的共同事实来源。代码行为与文档不一致时，应在同一次变更中修正文档和代码。
 
-当前已交付：多租户注册、密码/邮箱验证码登录、找回密码、会话恢复、CSRF 退出、工作台壳层，以及问卷创建、版本发布、登录填写和统计闭环。认证契约见 `specs/identity-and-auth.md`，问卷契约见 `specs/survey-platform.md`；HTTP 接口与前端视觉约束分别见 `standards/api.md` 和 `standards/frontend-design.md`。
+当前已交付：多租户注册、密码/邮箱验证码登录、找回密码、会话恢复、CSRF 退出、工作台壳层，问卷创建、版本发布、登录填写和统计闭环，以及个人题库、不可变题目版本、登录分享、共享区和跨问卷统计。认证契约见 `specs/identity-and-auth.md`，问卷契约见 `specs/survey-platform.md`，题库契约见 `specs/question-library.md`；HTTP 接口与前端视觉约束分别见 `standards/api.md` 和 `standards/frontend-design.md`。
 
 ## 文档地图
 

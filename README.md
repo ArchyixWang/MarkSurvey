@@ -2,7 +2,7 @@
 
 MarkSurvey 是一个在线问卷系统。本仓库采用规格驱动开发（Specification-Driven Development，SDD）：需求先形成文档与验收标准，再进入实现、联调和提交。
 
-> 当前状态：多租户身份认证、问卷 Schema 与版本体系、登录填写与统计一期已实现。
+> 当前状态：多租户身份认证、问卷 Schema 与版本体系、登录填写与统计、题库与跨问卷统计均已实现。
 
 ## 技术栈
 
@@ -39,7 +39,7 @@ MarkSurvey/
 winget install --id MongoDB.Server --version 9.0.2 --exact
 ```
 
-若本机已有兼容的 MongoDB 服务，可直接复用现有实例。后端启动时会 ping 数据库并创建认证与问卷索引；数据库不可用时应用启动失败。
+若本机已有兼容的 MongoDB 服务，可直接复用现有实例。后端启动时会 ping 数据库并创建认证、问卷与题库索引；数据库不可用时应用启动失败。
 
 ### 后端
 
@@ -58,6 +58,8 @@ Copy-Item .env.example .env
 认证接口位于 `/api/v1/auth`，包括滑块挑战、邮箱验证码、注册、两种登录、找回密码、会话恢复和退出。
 
 问卷接口位于 `/api/v1/surveys` 与 `/api/v1/public/surveys`，包括创建、草稿编辑、发布、关闭、截止时间、版本历史、自动草稿、提交、文本答案和统计。所有填写接口要求登录；匿名设置只影响提交后的身份去标识。
+
+题库接口位于 `/api/v1/question-library`，包括题目根与不可变版本、恢复与派生、登录分享、共享区、独立复制、归档恢复、问卷使用记录和跨问卷统计。分享链接要求登录，接收方复制后得到完全冻结的自有题目。
 
 ### 前端
 
@@ -79,6 +81,10 @@ npm run dev
 - `/workspace/surveys`：问卷列表与创建入口。
 - `/workspace/surveys/:id/edit`：Schema、题目、页面、规则、版本与发布管理。
 - `/workspace/surveys/:id/statistics`：问卷总体与逐题统计。
+- `/workspace/questions`：个人题目库与共享区。
+- `/workspace/questions/:id`：题目内容、版本、分享、使用问卷与归档。
+- `/workspace/questions/:id/statistics`：跨问卷、跨版本题目统计。
+- `/shared/questions/:token`：受保护题目分享预览与复制；未登录时安全回跳。
 - `/survey/:short_code`：受保护填写页；未登录时登录或注册后回到原问卷。
 
 ## 验证命令
@@ -112,5 +118,7 @@ npm run check
 - 技术选型决策：`docs/decisions/0001-initial-technology-stack.md`
 - 身份认证决策：`docs/decisions/0002-authentication-session-captcha.md`
 - 问卷版本决策：`docs/decisions/0003-survey-schema-versioning.md`
+- 题库版本与分享决策：`docs/decisions/0004-question-library-versioning-sharing.md`
 - 认证与工作台规格：`docs/specs/identity-and-auth.md`
 - 问卷体系规格：`docs/specs/survey-platform.md`
+- 题库与跨问卷统计规格：`docs/specs/question-library.md`

@@ -15,4 +15,4 @@
 
 - `identity-and-auth.md`：多租户身份、认证与工作台一期，状态 `Implemented`。
 - `survey-platform.md`：问卷 Schema、版本、填写与统计一期，状态 `Implemented`。
-- `question-library.md`：题库、题目版本、分享与跨问卷统计二期，状态 `Approved`。
+- `question-library.md`：题库、题目版本、分享与跨问卷统计二期，状态 `Implemented`。
